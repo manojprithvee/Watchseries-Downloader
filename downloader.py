@@ -84,5 +84,6 @@ def watchseries(link):
 
 
 #gorillavia("http://gorillavid.in/ntrjh7twzrf3")
-watchseries("http://thewatchseries.to/serie/avengers_assemble")
+#watchseries("http://thewatchseries.to/serie/avengers_assemble")
+watchseries("http://thewatchseries.to/serie/true_blood")
 #os.system("poweroff")
