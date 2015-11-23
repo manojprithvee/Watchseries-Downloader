@@ -23,11 +23,24 @@ def gorillavia(link,name,season,episold,s_name):
 			a=requests.get(link,headers={"User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36","Upgrade-Insecure-Requests":  1})
 			urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', a.text)
 			print urls[10]
+			for i in urls:
+				if i.find(".mp4")!=-1:
+					urls=i
+					break
+			a=""
 			os.system("mkdir -p /home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season))
-			name="/home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season)+"/"+s_name+"_S"+str(season)+"E"+str(episold)+"-"+name+".mp4"
-			os.system('wget -c -O "'+name+'" '+urls[10])
-			n = notify2.Notification("File Downloaded:",name.split("/")[-1])
-			n.show()
+			namel="/home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season)+"/"+s_name+"_S"+str(season)+"E"+str(episold)+"-"+name+".mp4"
+			#os.system('wget -c -O "'+name+'" '+urls)
+			proc = subprocess.Popen(['wget -c -O "'+namel+'" '+urls], stdout=subprocess.PIPE, shell=True)
+			(out, err) = proc.communicate()
+			print out
+
+			a=a+out
+			if out.find("The file is already fully retrieved; nothing to do.")==-1:
+				print "abc"
+				print out
+				n = notify2.Notification("File Downloaded:",namel.split("/")[-1])
+				n.show()
 	except Exception, e:
 		print FAIL + str(e) + ENDC
 		wait_for_internet()
@@ -80,10 +93,28 @@ def watchseries(link):
 
 
 
-
+def main():
+	pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+	a=raw_input("enter the watchseries.to Link:")
+	if pattern.match(a):
+		if a.find("watchseries.to")!=-1:
+			if a.find("/episode/")!=-1 and len(a.split("/"))==5:
+				b=raw_input("enter the season number:")
+				c=raw_input("enter the episode number:")
+				d=raw_input("enter the episode name:")
+				leve1(a,b,c,d)
+			elif a.find("/serie/")!=-1 and len(a.split("/"))==5:
+				watchseries(a)
+			else:
+				print "enter a url of a series or a episode"
+		else:
+			print "enter a watchseries.to link"
+	else:
+		print "enter a link "
 
 
 #gorillavia("http://gorillavid.in/ntrjh7twzrf3")
 #watchseries("http://thewatchseries.to/serie/avengers_assemble")
 watchseries("http://thewatchseries.to/serie/true_blood")
+#main()
 #os.system("poweroff")
