@@ -1,0 +1,1 @@
+print len("aHR0cDovL3d3dy52aWRlb3dlZWQuZXMvZmlsZS81N2M4ZTU0NmExNzM2")

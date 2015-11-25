@@ -3,13 +3,13 @@ import lxml.html as lh
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 notify2.init('watchseries downloader')
-pkl_file = open('data.pkl', 'rb')
+pkl_file = open('data.json', 'rb')
 data = json.load(pkl_file)
 
 def onexit():
 	print "manoj"
 	print type(data)
-	output = open('data.pkl', 'wb')
+	output = open('data.json', 'wb')
 	json.dump(data, output)
 	output.close()
 atexit.register(onexit)
@@ -82,7 +82,10 @@ def leve1(link,i,j,s_name):
 	#print link
 	name=doc.xpath("//title/text()")[0]
 	name=name.split(" - ")[1]
-	gorillavia(base64.b64decode(final[0].split("=")[1]),name,i,j,s_name)
+	print final[0].replace("/cale.html?r=","")[:56]
+	gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name)
+
+
 def watchseries(link):
 	s_name=link.split("/")[-1]
 	epview=[]
@@ -114,6 +117,8 @@ def watchseries(link):
 					if x.find("s"+str(i)+"_e"+str(j)+".html")!=-1:
 						print ("s"+str(i)+"_e"+str(j))
 						leve1("http://thewatchseries.to"+x,i,j,s_name)
+						season=0
+						episold=0
 	
 
 
