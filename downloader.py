@@ -37,11 +37,13 @@ def runProcess(exe):
 		if len(temp)>30:
 			print temp,
 		if len(temp)<30:
-			if temp.find("skipping")==-1:  
-				sys.stdout.write("\033[K"+out.strip("\n")+"\r")
-				sys.stdout.flush()
+			if temp.find("skipping")==-1:
+				a=out.strip().split(" ")
+				if a!=[""]:
+					a = [x for x in a if x != ""]
+					print("\033[K \033[07m"+"Downloaded: "+a[0]+"B Completed: "+a[1]+" Speed: "+a[2]+"B\s"+" Time Remaining: "+a[3]+"\033[0m \r"),
+		
 		final=final+out
-		a=len(temp)
 		if(retcode is not None):
 			return final
 
@@ -64,7 +66,6 @@ def gorillavia(link,name,season,episold,s_name):
 			if out.find("The file is already fully retrieved")==-1:
 				n = notify2.Notification("File Downloaded:",namel.split("/")[-1],"notification-network-ethernet-connected")
 				n.show()
-			print data
 	except Exception, e:
 		print FAIL + str(e) + ENDC
 		wait_for_internet()
