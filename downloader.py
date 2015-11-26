@@ -32,7 +32,7 @@ def runProcess(exe):
 	while(True):
 		retcode = p.poll() #returns None while subprocess is running
 		out=p.stdout.readline()
-		out=out.replace(".......... ","")
+		out=out.replace(".......... ","").replace(",......... ","").replace(",,........ ","").replace(",,,....... ","").replace(",,,,...... ","").replace(",,,,,..... ","").replace(",,,,,,.... ","").replace(",,,,,,,... ","").replace(",,,,,,,,.. ","").replace(",,,,,,,,,. ","").replace(",,,,,,,,,, ","")
 		temp=out
 		if len(temp)>30:
 			print temp,
