@@ -1,1 +1,7 @@
-print len("aHR0cDovL3d3dy52aWRlb3dlZWQuZXMvZmlsZS81N2M4ZTU0NmExNzM2")
+import sys,time
+sys.stdout.write('hello')
+sys.stdout.flush()
+for _ in range(5):
+    time.sleep(1)
+    sys.stdout.write('\033[D \033[D')
+    sys.stdout.flush()

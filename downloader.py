@@ -28,43 +28,48 @@ def wait_for_internet():
 def runProcess(exe):
 	p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True,executable="/bin/bash")    
 	final=""
+	a=0
 	while(True):
 		retcode = p.poll() #returns None while subprocess is running
 		out=p.stdout.readline()
 		out=out.replace(".......... ","")
 		temp=out
-		#
-		# print len(temp)
-		print out,
+		if len(temp)>30:
+			print temp,
+		if len(temp)<30:
+			if temp.find("skipping")==-1:  
+				sys.stdout.write("\033[K"+out.strip("\n")+"\r")
+				sys.stdout.flush()
 		final=final+out
+		a=len(temp)
 		if(retcode is not None):
 			return final
 
 def gorillavia(link,name,season,episold,s_name):
-	# try:
-	if link.find("gorillavid.in")==-1:
-		print FAIL + "This has no gorillavid Links" + ENDC
-	else:
-		a=requests.get(link,headers={"User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36","Upgrade-Insecure-Requests":  1})
-		urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', a.text)
-		for i in urls:
-			if i.find(".mp4")!=-1:
-				urls=i
-				break
-		a=""
-		os.system("mkdir -p /home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season))
-		namel="/home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season)+"/"+s_name+"_S"+str(season)+"E"+str(episold)+"-"+name+".mp4"
-		out=runProcess('wget  -c -O "'+namel+'" '+urls)
-		data[s_name]["last_downloaded"]=(season,episold)
-		if out.find("The file is already fully retrieved")==-1:
-			n = notify2.Notification("File Downloaded:",namel.split("/")[-1],"notification-network-ethernet-connected")
-			n.show()
-		print data
-	# except Exception, e:
-	# 	print FAIL + str(e) + ENDC
-	# 	wait_for_internet()
-	# 	gorillavia(link,name,season,episold,s_name)
-	# 	return
+	try:
+		if link.find("gorillavid.in")==-1:
+			print FAIL + "This has no gorillavid Links" + ENDC
+		else:
+			a=requests.get(link,headers={"User-Agent":"Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36","Upgrade-Insecure-Requests":  1})
+			urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', a.text)
+			for i in urls:
+				if i.find(".mp4")!=-1:
+					urls=i
+					break
+			a=""
+			os.system("mkdir -p /home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season))
+			namel="/home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season)+"/"+s_name+"_S"+str(season)+"E"+str(episold)+"-"+name+".mp4"
+			out=runProcess('wget  -c -O "'+namel+'" '+urls)
+			data[s_name]["last_downloaded"]=(season,episold)
+			if out.find("The file is already fully retrieved")==-1:
+				n = notify2.Notification("File Downloaded:",namel.split("/")[-1],"notification-network-ethernet-connected")
+				n.show()
+			print data
+	except Exception, e:
+		print FAIL + str(e) + ENDC
+		wait_for_internet()
+		gorillavia(link,name,season,episold,s_name)
+		return
 	
 
 
@@ -82,7 +87,6 @@ def leve1(link,i,j,s_name):
 	#print link
 	name=doc.xpath("//title/text()")[0]
 	name=name.split(" - ")[1]
-	print final[0].replace("/cale.html?r=","")[:56]
 	gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name)
 
 
