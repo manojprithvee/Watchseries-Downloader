@@ -11,7 +11,10 @@ def onexit():
 	print type(data)
 	output = open('data.json', 'wb')
 	json.dump(data, output)
+	os.system("setterm -cursor on")
 	output.close()
+	if "-p" in sys.argv:
+		os.system.("poweroff")
 atexit.register(onexit)
 
 def wait_for_internet():
@@ -25,6 +28,7 @@ def wait_for_internet():
 			sys.stdout.write("..")
 			sys.stdout.flush()
 			time.sleep(2)
+
 def runProcess(exe):
 	p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True,executable="/bin/bash")    
 	final=""
@@ -34,6 +38,7 @@ def runProcess(exe):
 		out=p.stdout.readline()
 		out=out.replace(".......... ","").replace(",......... ","").replace(",,........ ","").replace(",,,....... ","").replace(",,,,...... ","").replace(",,,,,..... ","").replace(",,,,,,.... ","").replace(",,,,,,,... ","").replace(",,,,,,,,.. ","").replace(",,,,,,,,,. ","").replace(",,,,,,,,,, ","")
 		temp=out
+		os.system("setterm -cursor off && stty -echo")
 		if len(temp)>30:
 			print temp,
 		if len(temp)<30:
@@ -45,6 +50,7 @@ def runProcess(exe):
 		
 		final=final+out
 		if(retcode is not None):
+			os.system("setterm -cursor on && stty echo")
 			return final
 
 def gorillavia(link,name,season,episold,s_name):
@@ -66,10 +72,11 @@ def gorillavia(link,name,season,episold,s_name):
 			if out.find("The file is already fully retrieved")==-1:
 				n = notify2.Notification("File Downloaded:",namel.split("/")[-1],"notification-network-ethernet-connected")
 				n.show()
+			print "\n------------------------------------------------------\n" 
 	except Exception, e:
 		print FAIL + str(e) + ENDC
 		wait_for_internet()
-		gorillavia(link,name,season,episold,s_name)
+		#gorillavia(link,name,season,episold,s_name)
 		return
 	
 
@@ -80,7 +87,7 @@ def leve1(link,i,j,s_name):
 	except Exception, e:
 		print FAIL + str(e)+ ENDC
 		wait_for_internet()
-		leve1(link,i,j,s_name)
+		#leve1(link,i,j,s_name)
 		return
 	html=a.text.encode('ascii', 'ignore').decode('ascii')
 	doc = lh.fromstring(a.text)
@@ -116,7 +123,7 @@ def watchseries(link):
 	if "last_downloaded" in data[s_name]:
 		season,episold=data[s_name]['last_downloaded']
 	for i in range(50):
-		for j in range(200):
+		for j in range(13):
 			for x in epview:
 				if i>=season and j>episold:
 					if x.find("s"+str(i)+"_e"+str(j)+".html")!=-1:
@@ -155,4 +162,3 @@ def main():
 #watchseries("http://thewatchseries.to/serie/avengers_assemble")
 #watchseries("http://thewatchseries.to/serie/true_blood")
 main()
-#os.system("poweroff")
