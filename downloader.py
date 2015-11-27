@@ -5,16 +5,16 @@ ENDC = '\033[0m'
 notify2.init('watchseries downloader')
 pkl_file = open('data.json', 'rb')
 data = json.load(pkl_file)
-
+gorillavialist=list()
 def onexit():
-	print "manoj"
-	print type(data)
+	print "saving status.."
 	output = open('data.json', 'wb')
 	json.dump(data, output)
 	os.system("setterm -cursor on")
+	os.system("stty echo")
 	output.close()
 	if "-p" in sys.argv:
-		os.system.("poweroff")
+		os.system("poweroff")
 atexit.register(onexit)
 
 def wait_for_internet():
@@ -54,6 +54,7 @@ def runProcess(exe):
 			return final
 
 def gorillavia(link,name,season,episold,s_name):
+	print "S_"+str(season)+"E_"+str(episold)
 	try:
 		if link.find("gorillavid.in")==-1:
 			print FAIL + "This has no gorillavid Links" + ENDC
@@ -69,7 +70,7 @@ def gorillavia(link,name,season,episold,s_name):
 			namel="/home/manoj/Downloads/watchseries/"+s_name+"/Season-"+str(season)+"/"+s_name+"_S"+str(season)+"E"+str(episold)+"-"+name+".mp4"
 			out=runProcess('wget  -c -O "'+namel+'" '+urls)
 			data[s_name]["last_downloaded"]=(season,episold)
-			if out.find("The file is already fully retrieved")==-1:
+			if out.find("416 Requested Range Not Satisfiable")==-1:
 				n = notify2.Notification("File Downloaded:",namel.split("/")[-1],"notification-network-ethernet-connected")
 				n.show()
 			print "\n------------------------------------------------------\n" 
@@ -79,7 +80,6 @@ def gorillavia(link,name,season,episold,s_name):
 		#gorillavia(link,name,season,episold,s_name)
 		return
 	
-
 
 def leve1(link,i,j,s_name):
 	try:
@@ -95,8 +95,20 @@ def leve1(link,i,j,s_name):
 	#print link
 	name=doc.xpath("//title/text()")[0]
 	name=name.split(" - ")[1]
-	gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name)
+	gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name])
 
+def rundownload(s_name):
+	global data
+	data[s_name]["episold_list"]=list(gorillavialist)
+	season=-1
+	episold=-1
+	if "last_downloaded" in data[s_name]:
+		season,episold=data[s_name]['last_downloaded']
+	for i in gorillavialist:
+		if i[2]>=season and i[3]>episold:
+			gorillavia(i[0],i[1],i[2],i[3],i[4])
+			season=-1
+			episold=-1
 
 def watchseries(link):
 	s_name=link.split("/")[-1]
@@ -114,28 +126,22 @@ def watchseries(link):
 		left=doc.xpath('//div[@id="left"]/div/ul/li/a/@href')
 		right=doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
 		epview=right+left
-		data[s_name]=dict()
-		data[s_name]["episold_list"]=list(epview)
-	else:
-		epview=data[s_name]["episold_list"]
-	season=0
-	episold=0
-	if "last_downloaded" in data[s_name]:
-		season,episold=data[s_name]['last_downloaded']
-	for i in range(50):
-		for j in range(13):
-			for x in epview:
-				if i>=season and j>episold:
+		
+		for i in range(50):
+			for j in range(13):
+				for x in epview:
 					if x.find("s"+str(i)+"_e"+str(j)+".html")!=-1:
 						print ("s"+str(i)+"_e"+str(j))
 						leve1("http://thewatchseries.to"+x,i,j,s_name)
 						season=0
 						episold=0
-	
-
-
-
-
+		data[s_name]={}
+		rundownload(s_name)
+	else:
+		print "previous data found and starting resuming"
+		global gorillavialist
+		gorillavialist=data[s_name]["episold_list"]
+		rundownload(s_name)
 
 def main():
 	pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
@@ -156,9 +162,6 @@ def main():
 	else:
 		print "enter a link "
 
-
-
-#gorillavia("http://gorillavid.in/ntrjh7twzrf3")
 #watchseries("http://thewatchseries.to/serie/avengers_assemble")
-#watchseries("http://thewatchseries.to/serie/true_blood")
-main()
+watchseries("http://thewatchseries.to/serie/true_blood")
+#main()
