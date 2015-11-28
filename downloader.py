@@ -38,7 +38,7 @@ def wait_for_internet():
             time.sleep(2)
 
 
-def run_process(exe):
+def Run_process(exe):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
     final = ""
     while True:
@@ -56,7 +56,7 @@ def run_process(exe):
                 a = out.strip().split(" ")
                 if a != [""]:
                     a = [x for x in a if x != ""]
-                    print("\033[K \033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
+                    print("\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
                         2] + "B\s" + " Time Remaining: " + a[3] + "\033[0m \r"),
 
         final = final + out
@@ -148,6 +148,7 @@ def watchseries(link):
                         print ("s" + str(i) + "_e" + str(j))
                         leve1("http://thewatchseries.to" + x, i, j, s_name)
         data[s_name] = {}
+        data[s_name]["lastupdate"]=int(round(time.time() * 1000))
         rundownload(s_name)
     else:
         print "previous data found and starting resuming"
