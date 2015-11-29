@@ -1,7 +1,11 @@
 # TODO add a expire date to the data.json 
+# TODO handle failed: in wget
+# TODO handle list index out of range in , HTTPConnectionPool
 import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit
+from pushover import init,Client
 import lxml.html as lh
-
+init("aa9MYCS3kvMkczTboARYzrGFXU2YWM")
+client = Client("uxCwRsHcWuAnqJWpphtHWwYnpVMFHv")
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 notify2.init('watchseries downloader')
@@ -13,7 +17,7 @@ gorillavialist = list()
 def onexit():
     print "saving status.."
     output = open('data.json', 'wb')
-    json.dump(data, output)
+    json.dump(data, output,indent=4)
     os.system("setterm -cursor on")
     os.system("stty echo")
     output.close()
@@ -89,9 +93,16 @@ def gorillavia(link, name, season, episold, s_name):
                 n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
                                          "notification-network-ethernet-connected")
                 n.show()
+                global client
+                client.send_message("File Downloaded: "+namel.split("/")[-1], title="watchseries")
+            if out.find("failed:")!=-1:
+            	gorillavia(link, name, season, episold, s_name)
+            	return
             print "\n------------------------------------------------------\n"
     except Exception, e:
         print FAIL + str(e) + ENDC
+        global client
+        client.send_message(str(e), title="watchseries")
         wait_for_internet()
         # gorillavia(link,name,season,episold,s_name)
         return
@@ -110,7 +121,10 @@ def leve1(link, i, j, s_name):
     # print link
     name = doc.xpath("//title/text()")[0]
     name = name.split(" - ")[1]
-    gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
+    if final!=[]:
+    	gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
+    else:
+    	print "no links found"
 
 
 def rundownload(s_name):
@@ -129,6 +143,7 @@ def rundownload(s_name):
 
 def watchseries(link):
     s_name = link.split("/")[-1]
+    print s_name
     if s_name not in data:
         try:
             a = requests.get(link)
@@ -142,7 +157,7 @@ def watchseries(link):
         right = doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
         epview = right + left
         for i in range(50):
-            for j in range(13):
+            for j in range(200):
                 for x in epview:
                     if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
                         print ("s" + str(i) + "_e" + str(j))
@@ -155,7 +170,7 @@ def watchseries(link):
         global gorillavialist
         gorillavialist = data[s_name]["episold_list"]
         rundownload(s_name)
-
+        gorillavialist=list()
 
 def main():
     pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
@@ -177,6 +192,9 @@ def main():
         print "enter a link "
 
 
-# watchseries("http://thewatchseries.to/serie/avengers_assemble")
-watchseries("http://thewatchseries.to/serie/true_blood")
+watchseries("http://thewatchseries.to/serie/The_Blacklist")
+watchseries("http://thewatchseries.to/serie/madame_secretary")
+watchseries("http://thewatchseries.to/serie/haven")
+watchseries("http://thewatchseries.to/serie/the_librarians_us_")
+# watchseries("http://thewatchseries.to/serie/daredevil")
 # main()
