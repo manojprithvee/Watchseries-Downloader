@@ -98,10 +98,8 @@ def gorillavia(link, name, season, episold, s_name):
 
 
 def leve1(link, i, j, s_name):
-    print "leve1 "+str(i)+str(j)
     try:
-        print "abc"
-        a = requests.get(link)
+        a = requests.get(link,timeout=1)
         time.sleep(1)
     except Exception, e:
         print FAIL + str(e) + ENDC
@@ -114,7 +112,7 @@ def leve1(link, i, j, s_name):
     name = doc.xpath("//title/text()")[0]
     name = name.split(" - ")[1]
     if final!=[]:
-    	gorillavia(base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name)
+    	gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
     else:
     	print "no links found"
 

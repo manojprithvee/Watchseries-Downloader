@@ -109,12 +109,13 @@ def gorillavia(link, name, season, episold, s_name):
 
 
 def leve1(link, i, j, s_name):
+    print ("s" + str(i) + "_e" + str(j))
     try:
-        a = requests.get(link)
+		a = requests.get(link,timeout=1)
     except Exception, e:
         print FAIL + str(e) + ENDC
         wait_for_internet()
-        # leve1(link,i,j,s_name)
+        leve1(link,i,j,s_name)
         return
     doc = lh.fromstring(a.text)
     final = doc.xpath('//*[2]/td[2]/a/@href')
@@ -123,6 +124,7 @@ def leve1(link, i, j, s_name):
     name = name.split(" - ")[1]
     if final!=[]:
     	gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
+    	time.sleep(5)
     else:
     	print "no links found"
 
@@ -160,7 +162,6 @@ def watchseries(link):
             for j in range(200):
                 for x in epview:
                     if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                        print ("s" + str(i) + "_e" + str(j))
                         leve1("http://thewatchseries.to" + x, i, j, s_name)
         data[s_name] = {}
         data[s_name]["lastupdate"]=int(round(time.time() * 1000))
@@ -190,7 +191,6 @@ def main():
             print "enter a watchseries.to link"
     else:
         print "enter a link "
-
 
 watchseries("http://thewatchseries.to/serie/The_Blacklist")
 watchseries("http://thewatchseries.to/serie/madame_secretary")
