@@ -69,11 +69,15 @@ def Run_process(exe):
             return final
 
 
-def gorillavia(link, name, season, episold, s_name):
+def gorillavia(link, name, season, episold, s_name,try1):
     print "S_" + str(season) + "E_" + str(episold)
+    print "try "+str(try1)
     try:
         if link.find("gorillavid.in") == -1:
             print FAIL + "This has no gorillavid Links" + ENDC
+        elif(try1==4):
+            print FAIL + "tryed 3 time and failed" + ENDC
+            return
         else:
             a = requests.get(link, headers={
                 "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/537.36 (KHTML, like \
@@ -94,28 +98,31 @@ def gorillavia(link, name, season, episold, s_name):
                                          "notification-network-ethernet-connected")
                 n.show()
                 global client
-                client.send_message("File Downloaded: "+namel.split("/")[-1], title="watchseries")
+                client.send_message("File Downloaded: "+namel.split("/")[-1], title="WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+len(data[s_name]["episold_list"]))
             if out.find("failed:")!=-1:
-            	gorillavia(link, name, season, episold, s_name)
-            	return
+                gorillavia(link, name, season, episold, s_name,try1+1)
+                return
             print "\n------------------------------------------------------\n"
     except Exception, e:
         print FAIL + str(e) + ENDC
         global client
         client.send_message(str(e), title="watchseries")
         wait_for_internet()
-        # gorillavia(link,name,season,episold,s_name)
+        gorillavia(link,name,season,episold,s_name,try1+1)
         return
 
 
-def leve1(link, i, j, s_name):
+def leve1(link, i, j, s_name,try1):
     print ("s" + str(i) + "_e" + str(j))
+    if(try1==4):
+        print FAIL + "tryed 3 time and failed" + ENDC
+        return
     try:
-		a = requests.get(link,timeout=1)
+        a = requests.get(link,timeout=10)
     except Exception, e:
         print FAIL + str(e) + ENDC
         wait_for_internet()
-        leve1(link,i,j,s_name)
+        leve1(link,i,j,s_name,try1+1)
         return
     doc = lh.fromstring(a.text)
     final = doc.xpath('//*[2]/td[2]/a/@href')
@@ -123,11 +130,30 @@ def leve1(link, i, j, s_name):
     name = doc.xpath("//title/text()")[0]
     name = name.split(" - ")[1]
     if final!=[]:
-    	gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
-    	time.sleep(5)
+        gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
+        time.sleep(5)
     else:
-    	print "no links found"
+        print "no links found"
 
+
+def leve1_epi(link,i,j,s_name,try1):
+    if(try1==4):
+        print FAIL + "tryed 3 time and failed" + ENDC
+        return
+    try:
+        a=requests.get(link)
+    except Exception, e:
+        print FAIL + str(e)+ ENDC
+        wait_for_internet()
+        leve1_epi(link,i,j,s_name,try1+1)
+        return
+    html=a.text.encode('ascii', 'ignore').decode('ascii')
+    doc = lh.fromstring(a.text)
+    final=doc.xpath('//*[2]/td[2]/a/@href')
+    #print link
+    name=doc.xpath("//title/text()")[0]
+    name=name.split(" - ")[1]
+    gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name,1)
 
 def rundownload(s_name):
     global data
@@ -138,7 +164,9 @@ def rundownload(s_name):
         season, episold = data[s_name]['last_downloaded']
     for i in gorillavialist:
         if i[2] >= season and i[3] > episold:
-            gorillavia(i[0], i[1], i[2], i[3], i[4])
+            gorillavia(i[0], i[1], i[2], i[3], i[4],1)
+            output = open('data.json', 'wb')
+            json.dump(data, output,indent=4)
             season = -1
             episold = -1
 
@@ -147,31 +175,52 @@ def watchseries(link):
     s_name = link.split("/")[-1]
     print s_name
     if s_name not in data:
-        try:
-            a = requests.get(link)
-        except Exception, e:
-            print FAIL + str(e) + ENDC
-            wait_for_internet()
-            watchseries(link)
-            return
-        doc = lh.fromstring(a.text)
-        left = doc.xpath('//div[@id="left"]/div/ul/li/a/@href')
-        right = doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
-        epview = right + left
-        for i in range(50):
-            for j in range(200):
-                for x in epview:
-                    if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                        leve1("http://thewatchseries.to" + x, i, j, s_name)
-        data[s_name] = {}
-        data[s_name]["lastupdate"]=int(round(time.time() * 1000))
-        rundownload(s_name)
+            try:
+                a = requests.get(link)
+            except Exception, e:
+                print FAIL + str(e) + ENDC
+                wait_for_internet()
+                watchseries(link)
+                return
+            doc = lh.fromstring(a.text)
+            left = doc.xpath('//div[@id="left"]/div/ul/li/a/@href')
+            right = doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
+            epview = right + left
+            for i in range(50):
+                for j in range(200):
+                    for x in epview:
+                        if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
+                            leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+            data[s_name] = {}
+            data[s_name]["lastupdate"]=int(round(time.time() * 1000))
+            rundownload(s_name)
     else:
-        print "previous data found and starting resuming"
-        global gorillavialist
-        gorillavialist = data[s_name]["episold_list"]
-        rundownload(s_name)
-        gorillavialist=list()
+        if int(round(time.time() * 1000))-data[s_name]["lastupdate"]>86400000:
+            try:
+                a = requests.get(link)
+            except Exception, e:
+                print FAIL + str(e) + ENDC
+                wait_for_internet()
+                watchseries(link)
+                return
+            doc = lh.fromstring(a.text)
+            left = doc.xpath('//div[@id="left"]/div/ul/li/a/@href')
+            right = doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
+            epview = right + left
+            for i in range(50):
+                for j in range(200):
+                    for x in epview:
+                        if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
+                            leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+            data[s_name] = {}
+            data[s_name]["lastupdate"]=int(round(time.time() * 1000))
+            rundownload(s_name)
+        else:
+            print "previous data found and starting resuming"
+            global gorillavialist
+            gorillavialist = data[s_name]["episold_list"]
+            rundownload(s_name)
+            gorillavialist=list()
 
 def main():
     pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
@@ -182,7 +231,7 @@ def main():
                 b = raw_input("enter the season number:")
                 c = raw_input("enter the episode number:")
                 d = raw_input("enter the episode name:")
-                leve1(a, b, c, d)
+                leve1_epi(a, b, c, d)
             elif a.find("/serie/") != -1 and len(a.split("/")) == 5:
                 watchseries(a)
             else:
@@ -192,9 +241,9 @@ def main():
     else:
         print "enter a link "
 
-watchseries("http://thewatchseries.to/serie/The_Blacklist")
+# watchseries("http://thewatchseries.to/serie/true_blood")
 watchseries("http://thewatchseries.to/serie/madame_secretary")
 watchseries("http://thewatchseries.to/serie/haven")
 watchseries("http://thewatchseries.to/serie/the_librarians_us_")
 # watchseries("http://thewatchseries.to/serie/daredevil")
-# main()
+main()
