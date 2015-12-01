@@ -1,6 +1,5 @@
-# TODO add a expire date to the data.json 
-# TODO handle failed: in wget
-# TODO handle list index out of range in , HTTPConnectionPool
+# TODO sys.arvg argument to limit download,send mobile notification
+# TODO add pause button
 import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit
 from pushover import init,Client
 import lxml.html as lh
@@ -12,7 +11,6 @@ notify2.init('watchseries downloader')
 pkl_file = open('data.json', 'rb')
 data = json.load(pkl_file)
 gorillavialist = list()
-
 
 def onexit():
     print "saving status.."
@@ -27,6 +25,14 @@ def onexit():
 
 atexit.register(onexit)
 
+def notify(title1,message,try1,pri=0):
+	if try1>=4:
+		print "4 Retries failed"
+	try:
+		global client
+		client.send_message(message=message, title=title1,priority=pri)
+	except:
+		notify(title1,message,pri,try1+1)
 
 def wait_for_internet():
     print ('Waiting for internet..')
@@ -54,7 +60,10 @@ def Run_process(exe):
         temp = out
         os.system("setterm -cursor off && stty -echo")
         if len(temp) > 30:
-            print temp,
+            if out.find("     100%")!=-1:
+                print "-------------------------------Completed----------------------------------"
+            else:
+                print temp,
         if len(temp) < 30:
             if temp.find("skipping") == -1:
                 a = out.strip().split(" ")
@@ -93,20 +102,18 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
             out = Run_process('wget  -c -O "' + namel + '" ' + urls)
             data[s_name]["last_downloaded"] = (season, episold)
-            if out.find("416 Requested Range Not Satisfiable") == -1:
+            if out.find("416 Requested Range Not Satisfiable") == -1 or True:
                 n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
                                          "notification-network-ethernet-connected")
                 n.show()
-                global client
-                client.send_message("File Downloaded: "+namel.split("/")[-1], title="WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+len(data[s_name]["episold_list"]))
+                notify("WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1],1)
             if out.find("failed:")!=-1:
                 gorillavia(link, name, season, episold, s_name,try1+1)
                 return
-            print "\n------------------------------------------------------\n"
     except Exception, e:
         print FAIL + str(e) + ENDC
         global client
-        client.send_message(str(e), title="watchseries")
+        notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
         wait_for_internet()
         gorillavia(link,name,season,episold,s_name,try1+1)
         return
