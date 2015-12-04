@@ -3,13 +3,14 @@
 import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit
 from pushover import init,Client
 import lxml.html as lh
-init("aa9MYCS3kvMkczTboARYzrGFXU2YWM")
-client = Client("uxCwRsHcWuAnqJWpphtHWwYnpVMFHv")
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 notify2.init('watchseries downloader')
-pkl_file = open('data.json', 'rb')
-data = json.load(pkl_file)
+try:
+    pkl_file = open('data.json', 'rb')
+    data = json.load(pkl_file)
+except:
+    data={}
 gorillavialist = list()
 
 def onexit():
@@ -29,8 +30,19 @@ def notify(title1,message,try1,pri=0):
 	if try1>=4:
 		print "4 Retries failed"
 	try:
-		global client
-		client.send_message(message=message, title=title1,priority=pri)
+		a=requests.post('https://api.parse.com/1/push', data=json.dumps({
+       "where": {
+         "deviceType": "android"
+       },
+       "data": {
+         "alert": message,
+         "title":title1
+       }
+     }), headers={
+       "X-Parse-Application-Id": "<enter app id>",
+       "X-Parse-REST-API-Key": "<enter Restapi key>",
+       "Content-Type": "application/json"
+     })
 	except:
 		notify(title1,message,pri,try1+1)
 
@@ -100,9 +112,19 @@ def gorillavia(link, name, season, episold, s_name,try1):
             os.system("mkdir -p /home/manoj/Downloads/watchseries/" + s_name + "/Season-" + str(season))
             namel = "/home/manoj/Downloads/watchseries/" + s_name + "/Season-" + str(
                 season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
-            out = Run_process('wget  -c -O "' + namel + '" ' + urls)
+            if "-l" in sys.argv:
+                try:
+                    print "speed"
+                    speed=int(sys.argv[sys.argv.index("-l")+1])
+                    out = Run_process('wget  -c --limit-rate='+speed+'k -O "' + namel + '" ' + urls)
+                except Exception, e:
+                    print FAIL + str(e) + ENDC
+                    print "enter a number for speed"
+                    os._exit(0)
+            else:
+                out = Run_process('wget  -c -O "' + namel + '" ' + urls)
             data[s_name]["last_downloaded"] = (season, episold)
-            if out.find("416 Requested Range Not Satisfiable") == -1 or True:
+            if out.find("416 Requested Range Not Satisfiable") == -1:
                 n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
                                          "notification-network-ethernet-connected")
                 n.show()
@@ -113,7 +135,8 @@ def gorillavia(link, name, season, episold, s_name,try1):
     except Exception, e:
         print FAIL + str(e) + ENDC
         global client
-        notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
+        if try1==1:
+            notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
         wait_for_internet()
         gorillavia(link,name,season,episold,s_name,try1+1)
         return
@@ -201,8 +224,12 @@ def watchseries(link):
             data[s_name] = {}
             data[s_name]["lastupdate"]=int(round(time.time() * 1000))
             rundownload(s_name)
+            notify("WS Downloader",s_name+" Completed Downloading",1)
+            gorillavialist=list()
+
     else:
-        if int(round(time.time() * 1000))-data[s_name]["lastupdate"]>86400000:
+        if int(round(time.time() * 1000))-data[s_name]["lastupdate"]>864000000:
+            print int(round(time.time() * 1000))-data[s_name]["lastupdate"]
             try:
                 a = requests.get(link)
             except Exception, e:
@@ -222,11 +249,14 @@ def watchseries(link):
             data[s_name] = {}
             data[s_name]["lastupdate"]=int(round(time.time() * 1000))
             rundownload(s_name)
+            notify("WS Downloader",s_name+" Completed Downloading",1)
+            gorillavialist=list()
         else:
             print "previous data found and starting resuming"
             global gorillavialist
             gorillavialist = data[s_name]["episold_list"]
             rundownload(s_name)
+            notify("WS Downloader",s_name+" Completed Downloading",1)
             gorillavialist=list()
 
 def main():
@@ -238,7 +268,7 @@ def main():
                 b = raw_input("enter the season number:")
                 c = raw_input("enter the episode number:")
                 d = raw_input("enter the episode name:")
-                leve1_epi(a, b, c, d)
+                leve1_epi(a, b, c, d,1)
             elif a.find("/serie/") != -1 and len(a.split("/")) == 5:
                 watchseries(a)
             else:
@@ -249,8 +279,9 @@ def main():
         print "enter a link "
 
 # watchseries("http://thewatchseries.to/serie/true_blood")
-watchseries("http://thewatchseries.to/serie/madame_secretary")
-watchseries("http://thewatchseries.to/serie/haven")
-watchseries("http://thewatchseries.to/serie/the_librarians_us_")
+watchseries("http://thewatchseries.to/serie/the_flash_2014_")
+watchseries("http://thewatchseries.to/serie/arrow")
+watchseries("http://thewatchseries.to/serie/The_Originals")
+watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
 # watchseries("http://thewatchseries.to/serie/daredevil")
 main()
