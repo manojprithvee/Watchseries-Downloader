@@ -1,5 +1,10 @@
-# TODO sys.arvg argument to limit download,send mobile notification
 # TODO add pause button
+'''
+options 
+-reverse to start from latest episold
+-p to poweroff after download is Completed
+-l <number> limit the download in kb
+'''
 import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit,threading
 from pushover import init,Client
 import lxml.html as lh
@@ -192,10 +197,11 @@ def rundownload(s_name):
     data[s_name]["episold_list"] = list(gorillavialist)
     season = -1
     episold = -1
-
+    if "--reverse" in sys.arvg:
+        gorillavialist=gorillavialist[::-1]
     if "last_downloaded" in data[s_name]:
         season, episold = data[s_name]['last_downloaded']
-    for i in gorillavialist[::-1]:
+    for i in gorillavialist:
         if i[2] >= season and i[3] > episold:
             gorillavia(i[0], i[1], i[2], i[3], i[4],1)
             output = open('data.json', 'wb')
@@ -226,6 +232,7 @@ def watchseries(link):
                             leve1("http://thewatchseries.to" + x, i, j, s_name,1)
             data[s_name] = {}
             data[s_name]["lastupdate"]=int(round(time.time() * 1000))
+            notify("WS Downloader","Datamining Completeed for "+s_name,1)
             rundownload(s_name)
             notify("WS Downloader",s_name+" Completed Downloading",1)
             gorillavialist=list()
@@ -249,12 +256,14 @@ def watchseries(link):
                     for x in epview:
                         if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
                             leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+            notify("WS Downloader","Datamining Completeed for "+s_name,1)
             data[s_name] = {}
             data[s_name]["lastupdate"]=int(round(time.time() * 1000))
             rundownload(s_name)
             notify("WS Downloader",s_name+" Completed Downloading",1)
             gorillavialist=list()
         else:
+            notify("WS Downloader","Datamining Completeed for "+s_name,1)
             print "previous data found and starting resuming"
             global gorillavialist
             gorillavialist = data[s_name]["episold_list"]
@@ -285,6 +294,6 @@ def main():
 watchseries("http://thewatchseries.to/serie/The_Originals")
 watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
 if "-p" in sys.argv:
-        os.system("poweroff")
+        os.system("sudo poweroff")
 # watchseries("http://thewatchseries.to/serie/daredevil")
 # main()
