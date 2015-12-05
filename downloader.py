@@ -1,6 +1,6 @@
 # TODO sys.arvg argument to limit download,send mobile notification
 # TODO add pause button
-import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit
+import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit,threading
 from pushover import init,Client
 import lxml.html as lh
 FAIL = '\033[91m'
@@ -20,8 +20,7 @@ def onexit():
     os.system("setterm -cursor on")
     os.system("stty echo")
     output.close()
-    if "-p" in sys.argv:
-        os.system("poweroff")
+    
 
 
 atexit.register(onexit)
@@ -39,8 +38,8 @@ def notify(title1,message,try1,pri=0):
          "title":title1
        }
      }), headers={
-       "X-Parse-Application-Id": "<enter app id>",
-       "X-Parse-REST-API-Key": "<enter Restapi key>",
+       "X-Parse-Application-Id": "fMB6piQyYMpDbCnkJFrlfPZVS5nihQfADGqycvTH",
+       "X-Parse-REST-API-Key": "jiBr1uM5ip7oSYzwNYlL9QzI6eM62xfKxR3y5u3b",
        "Content-Type": "application/json"
      })
 	except:
@@ -58,6 +57,9 @@ def wait_for_internet():
             sys.stdout.write("..")
             sys.stdout.flush()
             time.sleep(2)
+
+
+
 
 
 def Run_process(exe):
@@ -116,7 +118,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 try:
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
-                    out = Run_process('wget  -c --limit-rate='+speed+'k -O "' + namel + '" ' + urls)
+                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls)
                 except Exception, e:
                     print FAIL + str(e) + ENDC
                     print "enter a number for speed"
@@ -190,9 +192,10 @@ def rundownload(s_name):
     data[s_name]["episold_list"] = list(gorillavialist)
     season = -1
     episold = -1
+
     if "last_downloaded" in data[s_name]:
         season, episold = data[s_name]['last_downloaded']
-    for i in gorillavialist:
+    for i in gorillavialist[::-1]:
         if i[2] >= season and i[3] > episold:
             gorillavia(i[0], i[1], i[2], i[3], i[4],1)
             output = open('data.json', 'wb')
@@ -279,9 +282,9 @@ def main():
         print "enter a link "
 
 # watchseries("http://thewatchseries.to/serie/true_blood")
-watchseries("http://thewatchseries.to/serie/the_flash_2014_")
-watchseries("http://thewatchseries.to/serie/arrow")
 watchseries("http://thewatchseries.to/serie/The_Originals")
 watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+if "-p" in sys.argv:
+        os.system("poweroff")
 # watchseries("http://thewatchseries.to/serie/daredevil")
-main()
+# main()
