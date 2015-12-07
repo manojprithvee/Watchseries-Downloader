@@ -214,24 +214,7 @@ def watchseries(link):
     s_name = link.split("/")[-1]
     print s_name
     if s_name not in data:
-            try:
-                a = requests.get(link)
-            except Exception, e:
-                print FAIL + str(e) + ENDC
-                wait_for_internet()
-                watchseries(link)
-                return
-            doc = lh.fromstring(a.text)
-            left = doc.xpath('//div[@id="left"]/div/ul/li/a/@href')
-            right = doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
-            epview = right + left
-            for i in range(50):
-                for j in range(200):
-                    for x in epview:
-                        if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                            leve1("http://thewatchseries.to" + x, i, j, s_name,1)
-            data[s_name] = {}
-            data[s_name]["lastupdate"]=int(round(time.time() * 1000))
+            datamining(link,s_name)
             notify("WS Downloader","Datamining Completeed for "+s_name,1)
             rundownload(s_name)
             notify("WS Downloader",s_name+" Completed Downloading",1)
@@ -240,25 +223,7 @@ def watchseries(link):
     else:
         if int(round(time.time() * 1000))-data[s_name]["lastupdate"]>864000000:
             print int(round(time.time() * 1000))-data[s_name]["lastupdate"]
-            try:
-                a = requests.get(link)
-            except Exception, e:
-                print FAIL + str(e) + ENDC
-                wait_for_internet()
-                watchseries(link)
-                return
-            doc = lh.fromstring(a.text)
-            left = doc.xpath('//div[@id="left"]/div/ul/li/a/@href')
-            right = doc.xpath('//div[@id="right"]/div/ul/li/a/@href')
-            epview = right + left
-            for i in range(50):
-                for j in range(200):
-                    for x in epview:
-                        if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                            leve1("http://thewatchseries.to" + x, i, j, s_name,1)
-            notify("WS Downloader","Datamining Completeed for "+s_name,1)
-            data[s_name] = {}
-            data[s_name]["lastupdate"]=int(round(time.time() * 1000))
+            datamining(link,s_name)
             rundownload(s_name)
             notify("WS Downloader",s_name+" Completed Downloading",1)
             gorillavialist=list()
@@ -270,6 +235,25 @@ def watchseries(link):
             rundownload(s_name)
             notify("WS Downloader",s_name+" Completed Downloading",1)
             gorillavialist=list()
+
+def datamining(link,s_name):
+    try:
+        a = requests.get(link)
+    except Exception, e:
+        print FAIL + str(e) + ENDC
+        wait_for_internet()
+        watchseries(link)
+        return
+    doc = lh.fromstring(a.text)
+    epview = doc.xpath('//div/ul/li/a/@href')
+    for i in range(50):
+        for j in range(200):
+            for x in epview:
+                if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
+                    leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+    notify("WS Downloader","Datamining Completeed for "+s_name,1)
+    data[s_name] = {}
+    data[s_name]["lastupdate"]=int(round(time.time() * 1000))
 
 def main():
     pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
