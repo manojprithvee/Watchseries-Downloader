@@ -5,7 +5,8 @@ a=requests.post('https://api.parse.com/1/push', data=json.dumps({
        },
        "data": {
          "alert": "tusyfcygvkj",
-         "title":"manoj"
+         "title":"manoj",
+         "flag":""
        }
      }), headers={
        "X-Parse-Application-Id": "fMB6piQyYMpDbCnkJFrlfPZVS5nihQfADGqycvTH",

@@ -40,7 +40,8 @@ def notify(title1,message,try1,pri=0):
        },
        "data": {
          "alert": message,
-         "title":title1
+         "title":title1,
+         "flag":"watchseries"
        }
      }), headers={
        "X-Parse-Application-Id": "fMB6piQyYMpDbCnkJFrlfPZVS5nihQfADGqycvTH",
@@ -48,7 +49,7 @@ def notify(title1,message,try1,pri=0):
        "Content-Type": "application/json"
      })
 	except:
-		notify(title1,message,pri,try1+1)
+		notify(title1,message,try1+1)
 
 def wait_for_internet():
     print ('Waiting for internet..')
@@ -193,7 +194,6 @@ def leve1_epi(link,i,j,s_name,try1):
     gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name,1)
 
 def rundownload(s_name):
-    global data
     data[s_name]["episold_list"] = list(gorillavialist)
     season = -1
     episold = -1
@@ -245,7 +245,7 @@ def datamining(link,s_name):
         watchseries(link)
         return
     doc = lh.fromstring(a.text)
-    epview = doc.xpath('//div/ul/li/a/@href')
+    epview = doc.xpath('//meta[@itemprop="url"]/@content')
     for i in range(50):
         for j in range(200):
             for x in epview:
@@ -275,8 +275,8 @@ def main():
         print "enter a link "
 
 # watchseries("http://thewatchseries.to/serie/true_blood")
-watchseries("http://thewatchseries.to/serie/The_Originals")
 watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+watchseries("http://thewatchseries.to/serie/The_Originals")
 if "-p" in sys.argv:
         os.system("sudo poweroff")
 # watchseries("http://thewatchseries.to/serie/daredevil")
