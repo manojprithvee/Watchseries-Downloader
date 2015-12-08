@@ -126,13 +126,13 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 try:
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
-                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel)
+                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls, namel)
                 except Exception, e:
                     print FAIL + str(e) + ENDC
                     print "enter a number for speed"
                     os._exit(0)
             else:
-                out = Run_process('wget  -c -O "' + namel + '" ' + urls)
+                out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel)
             data[s_name]["last_downloaded"] = (season, episold)
             if out.find("416 Requested Range Not Satisfiable") == -1:
                 n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
@@ -195,10 +195,11 @@ def leve1_epi(link,i,j,s_name,try1):
     gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name,1)
 
 def rundownload(s_name):
+    global gorillavialist
     data[s_name]["episold_list"] = list(gorillavialist)
     season = -1
     episold = -1
-    if "--reverse" in sys.arvg:
+    if "--reverse" in sys.argv:
         gorillavialist=gorillavialist[::-1]
     if "last_downloaded" in data[s_name]:
         season, episold = data[s_name]['last_downloaded']
@@ -276,9 +277,10 @@ def main():
         print "enter a link "
 
 # watchseries("http://thewatchseries.to/serie/true_blood")
-watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
-watchseries("http://thewatchseries.to/serie/The_Originals")
-if "-p" in sys.argv:
-        os.system("sudo poweroff")
-# watchseries("http://thewatchseries.to/serie/daredevil")
-# main()
+# watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+# watchseries("http://thewatchseries.to/serie/The_Originals")
+# if "-p" in sys.argv:
+#         os.system("sudo poweroff")
+# # watchseries("http://thewatchseries.to/serie/daredevil")
+# # main()
+watchseries("http://thewatchseries.to/serie/supergirl")

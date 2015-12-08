@@ -15,8 +15,8 @@ class justdubbed(object):
 		self.s_name=link.split("/")[-2]
 		notify("JustDubbedAnime Downloader","Started Downloading "+self.s_name)
 		self.justdubbedlevel1(link)
-	def __del__():
-		notify("JustDubbedAnime Downloader","Started Downloading "+self.s_name)
+	def __del__(self):
+		notify("JustDubbedAnime Downloader","Downloading Completed"+self.s_name)
 	def justdubbedlevel1(self,link,try1=1):
 		if try1>3:
 			print error
@@ -65,7 +65,6 @@ class justdubbed(object):
 		os.system("mkdir -p /home/manoj/Downloads/justdubbed/" + self.s_name + "/")
 		namel = "/home/manoj/Downloads/justdubbed/" + self.s_name +"/"+Episold_Name + ".mp4"
 		out = Run_process('wget  -c -T 10 -O "' + namel + '" "' + urls+'"',Episold_Name)
-		notify("JustDubbedAnime Downloader","Completed Downloading "+Episold_Name)
 
 def Run_process(exe,Episold_Name):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
@@ -88,9 +87,10 @@ def Run_process(exe,Episold_Name):
                 a = out.strip().split(" ")
                 if a != [""]:
                     a = [x for x in a if x != ""]
-                    print("\r\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
-                        2] + "B\s" + " Time Remaining: " + a[3] + "\033[0m "),
-
+                    try:
+                    	print("\r\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[2] + "B\s" + " Time Remaining: " + a[3] + "\033[0m "),
+                    except:
+                    	pass
         final = final + out
         if retcode is not None:
             return final	
