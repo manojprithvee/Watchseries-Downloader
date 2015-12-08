@@ -68,7 +68,7 @@ def wait_for_internet():
 
 
 
-def Run_process(exe):
+def Run_process(exe,namel):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
     final = ""
     while True:
@@ -78,10 +78,12 @@ def Run_process(exe):
             ",,,....... ", "").replace(",,,,...... ", "").replace(",,,,,..... ", "").replace(",,,,,,.... ", "").replace(
             ",,,,,,,... ", "").replace(",,,,,,,,.. ", "").replace(",,,,,,,,,. ", "").replace(",,,,,,,,,, ", "")
         temp = out
+        global data
         os.system("setterm -cursor off && stty -echo")
         if len(temp) > 30:
             if out.find("     100%")!=-1:
                 print "-------------------------------Completed----------------------------------"
+                notify("WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1],1)
             else:
                 print temp,
         if len(temp) < 30:
@@ -124,7 +126,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 try:
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
-                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls)
+                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel)
                 except Exception, e:
                     print FAIL + str(e) + ENDC
                     print "enter a number for speed"
@@ -136,7 +138,6 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
                                          "notification-network-ethernet-connected")
                 n.show()
-                notify("WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1],1)
             if out.find("failed:")!=-1:
                 gorillavia(link, name, season, episold, s_name,try1+1)
                 return

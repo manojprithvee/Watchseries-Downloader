@@ -4,20 +4,7 @@ def notify(title1,message,try1=1,pri=0):
 		print "4 Retries failed"
 		return
 	try:
-		a=requests.post('https://api.parse.com/1/push', data=json.dumps({
-       "where": {
-         "deviceType": "android"
-       },
-       "data": {
-         "alert": message,
-         "title":title1,
-         "flag":""
-       }
-     }), headers={
-       "X-Parse-Application-Id": "fMB6piQyYMpDbCnkJFrlfPZVS5nihQfADGqycvTH",
-       "X-Parse-REST-API-Key": "jiBr1uM5ip7oSYzwNYlL9QzI6eM62xfKxR3y5u3b",
-       "Content-Type": "application/json"
-     })
+		a=requests.post('https://api.parse.com/1/push', data=json.dumps({"where": {"deviceType": "android"},"data": {"alert": message,"title":title1,"flag":""}}), headers={"X-Parse-Application-Id": "fMB6piQyYMpDbCnkJFrlfPZVS5nihQfADGqycvTH","X-Parse-REST-API-Key": "jiBr1uM5ip7oSYzwNYlL9QzI6eM62xfKxR3y5u3b","Content-Type": "application/json"})
 	except Exception, e:
 		print str(e)
 		notify(title1,message,try1+1)
@@ -77,10 +64,10 @@ class justdubbed(object):
 				break
 		os.system("mkdir -p /home/manoj/Downloads/justdubbed/" + self.s_name + "/")
 		namel = "/home/manoj/Downloads/justdubbed/" + self.s_name +"/"+Episold_Name + ".mp4"
-		out = Run_process('wget  -c -T 10 -O "' + namel + '" "' + urls+'"')
+		out = Run_process('wget  -c -T 10 -O "' + namel + '" "' + urls+'"',Episold_Name)
 		notify("JustDubbedAnime Downloader","Completed Downloading "+Episold_Name)
 
-def Run_process(exe):
+def Run_process(exe,Episold_Name):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
     final = ""
     while True:
@@ -93,6 +80,7 @@ def Run_process(exe):
         if len(temp) > 30:
             if out.find("     100%")!=-1:
                 print "-------------------------------Completed----------------------------------"
+                notify("JustDubbedAnime Downloader","Completed Downloading "+Episold_Name)
             else:
                 print temp,
         if len(temp) < 30:
