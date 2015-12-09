@@ -31,10 +31,10 @@ def onexit():
 atexit.register(onexit)
 
 def notify(title1,message,try1,pri=0):
-	if try1>=4:
-		print "4 Retries failed"
-	try:
-		a=requests.post('https://api.parse.com/1/push', data=json.dumps({
+    if try1>=4:
+        print "4 Retries failed"
+    try:
+        a=requests.post('https://api.parse.com/1/push', data=json.dumps({
        "where": {
          "deviceType": "android"
        },
@@ -48,8 +48,8 @@ def notify(title1,message,try1,pri=0):
        "X-Parse-REST-API-Key": "jiBr1uM5ip7oSYzwNYlL9QzI6eM62xfKxR3y5u3b",
        "Content-Type": "application/json"
      })
-	except:
-		notify(title1,message,try1+1)
+    except:
+        notify(title1,message,try1+1)
 
 def wait_for_internet():
     print ('Waiting for internet..')
@@ -83,7 +83,6 @@ def Run_process(exe,namel):
         if len(temp) > 30:
             if out.find("     100%")!=-1:
                 print "-------------------------------Completed----------------------------------"
-                notify("WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1],1)
             else:
                 print temp,
         if len(temp) < 30:
@@ -127,6 +126,8 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
                     out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls, namel)
+                    if out.find("     100%")!=-1:
+                        notify("WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1],1)
                 except Exception, e:
                     print FAIL + str(e) + ENDC
                     print "enter a number for speed"
@@ -134,10 +135,6 @@ def gorillavia(link, name, season, episold, s_name,try1):
             else:
                 out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel)
             data[s_name]["last_downloaded"] = (season, episold)
-            if out.find("416 Requested Range Not Satisfiable") == -1:
-                n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
-                                         "notification-network-ethernet-connected")
-                n.show()
             if out.find("failed:")!=-1:
                 gorillavia(link, name, season, episold, s_name,try1+1)
                 return
@@ -277,10 +274,10 @@ def main():
         print "enter a link "
 
 # watchseries("http://thewatchseries.to/serie/true_blood")
-# watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
-# watchseries("http://thewatchseries.to/serie/The_Originals")
+watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+watchseries("http://thewatchseries.to/serie/The_Originals")
 # if "-p" in sys.argv:
 #         os.system("sudo poweroff")
 # # watchseries("http://thewatchseries.to/serie/daredevil")
 # # main()
-watchseries("http://thewatchseries.to/serie/supergirl")
+# watchseries("http://thewatchseries.to/serie/supergirl")

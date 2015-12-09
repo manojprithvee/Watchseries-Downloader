@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # TODO add pause button
 '''
 options 
@@ -6,31 +5,30 @@ options
 -p to poweroff after download is Completed
 -l <number> limit the download in kb
 '''
-import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit,threading,urllib2
+import requests, re, os, base64, subprocess, time, sys, notify2, json, atexit,threading
 from pushover import init,Client
 import lxml.html as lh
 FAIL = '\033[91m'
 ENDC = '\033[0m'
-size=0
-
-pkl_file = open('/home/manoj/programming/Watchseries-Downloader/data.json', 'rb')
-data = json.load(pkl_file)
-
+notify2.init('watchseries downloader')
+try:
+    pkl_file = open('/home/manoj/programming/Watchseries-Downloader/data.json', 'rb')
+    data = json.load(pkl_file)
+except:
+    data={}
+gorillavialist = list()
 
 def onexit():
     print "saving status.."
+    output = open('/home/manoj/programming/Watchseries-Downloader/data.json', 'wb')
+    json.dump(data, output,indent=4)
     os.system("setterm -cursor on")
     os.system("stty echo")
+    output.close()
     
 
 
 atexit.register(onexit)
-def get_size(url):
-	global size
-	f = urllib2.urlopen(url)
-	a= int(f.headers["Content-Length"])
-	print a
-	size=size+a
 
 def notify(title1,message,try1,pri=0):
 	if try1>=4:
@@ -70,7 +68,7 @@ def wait_for_internet():
 
 
 
-def Run_process(exe,namel,lista):
+def Run_process(exe,namel):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
     final = ""
     while True:
@@ -85,7 +83,7 @@ def Run_process(exe,namel,lista):
         if len(temp) > 30:
             if out.find("     100%")!=-1:
                 print "-------------------------------Completed----------------------------------"
-                notify(lista[0],lista[1],1)
+                notify("WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1],1)
             else:
                 print temp,
         if len(temp) < 30:
@@ -124,9 +122,25 @@ def gorillavia(link, name, season, episold, s_name,try1):
             os.system("mkdir -p /home/manoj/Downloads/watchseries/" + s_name + "/Season-" + str(season))
             namel = "/home/manoj/Downloads/watchseries/" + s_name + "/Season-" + str(
                 season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
-            lista=["WS Downloader ("+str(data[s_name]["episold_list"].index([link, name, season, episold, s_name])+1)+"/"+str(len(data[s_name]["episold_list"]))+")","File Downloaded: "+namel.split("/")[-1]] 
-            get_size(urls);
-        data[s_name]["last_downloaded"] = (season, episold)
+            if "-l" in sys.argv:
+                try:
+                    print "speed"
+                    speed=int(sys.argv[sys.argv.index("-l")+1])
+                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls, namel)
+                except Exception, e:
+                    print FAIL + str(e) + ENDC
+                    print "enter a number for speed"
+                    os._exit(0)
+            else:
+                out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel)
+            data[s_name]["last_downloaded"] = (season, episold)
+            if out.find("416 Requested Range Not Satisfiable") == -1:
+                n = notify2.Notification("File Downloaded:", namel.split("/")[-1],
+                                         "notification-network-ethernet-connected")
+                n.show()
+            if out.find("failed:")!=-1:
+                gorillavia(link, name, season, episold, s_name,try1+1)
+                return
     except Exception, e:
         print FAIL + str(e) + ENDC
         global client
@@ -182,9 +196,14 @@ def leve1_epi(link,i,j,s_name,try1):
 
 def rundownload(s_name):
     global gorillavialist
+    data[s_name]["episold_list"] = list(gorillavialist)
     season = -1
     episold = -1
-    for i in data[s_name]["episold_list"]:
+    if "--reverse" in sys.argv:
+        gorillavialist=gorillavialist[::-1]
+    if "last_downloaded" in data[s_name]:
+        season, episold = data[s_name]['last_downloaded']
+    for i in gorillavialist:
         if i[2] >= season and i[3] > episold:
             gorillavia(i[0], i[1], i[2], i[3], i[4],1)
             output = open('data.json', 'wb')
@@ -257,13 +276,11 @@ def main():
     else:
         print "enter a link "
 
-notify("WS Downloader","started",1)
 # watchseries("http://thewatchseries.to/serie/true_blood")
-rundownload("the_vampire_diaries")
-print size
-#watchseries("http://thewatchseries.to/serie/The_Originals")
+# watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+# watchseries("http://thewatchseries.to/serie/The_Originals")
 # if "-p" in sys.argv:
 #         os.system("sudo poweroff")
 # # watchseries("http://thewatchseries.to/serie/daredevil")
 # # main()
-#watchseries("http://thewatchseries.to/serie/supergirl")
+watchseries("http://thewatchseries.to/serie/supergirl")
