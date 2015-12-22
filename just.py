@@ -94,5 +94,5 @@ def Run_process(exe,Episold_Name):
         final = final + out
         if retcode is not None:
             return final	
-justdubbed("http://www.justanimedubbed.tv/watch/pokemon/")
+justdubbed("http://www.justanimedubbed.tv/watch/cyborg-009-the-cyborg-soldier/")
 
