@@ -12,6 +12,14 @@ class justdubbed(object):
 	
 	def __init__(self, link):
 		super(justdubbed, self).__init__()
+		pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+    	a = raw_input("enter the watchseries.to Link:")
+    	if not pattern.match(a):
+    		print "enter a correct link"
+    		return
+    	if link.find("www.justanimedubbed.tv/")==-1:
+    		print "enter a correct link"
+    		return
 		self.s_name=link.split("/")[-2]
 		notify("JustDubbedAnime Downloader","Started Downloading "+self.s_name)
 		self.justdubbedlevel1(link)
@@ -93,6 +101,7 @@ def Run_process(exe,Episold_Name):
                     	pass
         final = final + out
         if retcode is not None:
-            return final	
-justdubbed("http://www.justanimedubbed.tv/watch/cyborg-009-the-cyborg-soldier/")
+            return final
+
+justdubbed(raw_input("Enter the link: "))
 

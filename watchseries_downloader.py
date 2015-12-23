@@ -17,7 +17,8 @@ def onexit():
     print "saving status.."
     os.system("setterm -cursor on")
     os.system("stty echo")
-    output.close()
+    if notification_complete!="":
+        notify("WS Downloader - newly downloaded",notification_complete)
     
 
 
@@ -72,9 +73,6 @@ def Run_process(exe,namel):
         global data
         os.system("setterm -cursor off && stty -echo")
         if len(temp) > 30:
-            if out.find("     100%")!=-1:
-                print "-------------------------------Completed----------------------------------"
-            else:
                 print temp,
         if len(temp) < 30:
             if temp.find("skipping") == -1:
@@ -115,17 +113,17 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     speed=int(sys.argv[sys.argv.index("-l")+1])
                     out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls, namel)
                     if out.find("     100%")!=-1:
-                        notification_complete=notification_complete+namel.split("/")[-1]+"\n"
+                        print "-------------------------------Completed----------------------------------"
+                        notification_complete=notification_complete+s_name +'Season '+str(season)+" Episold "+str(episold)+"\n"
                 except Exception, e:
                     print FAIL + str(e) + ENDC
                     print "enter a number for speed"
                     os._exit(0)
             else:
                 out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel)
-                if out.find("416 Requested")==-1:
-            if out.find("failed:")!=-1:
-                gorillavia(link, name, season, episold, s_name,try1+1)
-                return
+                if out.find("failed:")!=-1:
+                    gorillavia(link, name, season, episold, s_name,try1+1)
+                    return
     except Exception, e:
         print FAIL + str(e) + ENDC
         global client
@@ -137,14 +135,14 @@ def gorillavia(link, name, season, episold, s_name,try1):
 
 
 def leve1(link, i, j, s_name,try1):
-    print j
+    print "\nS_"+str(i)+"E_"+str(j),
     if(try1==4):
         print FAIL + "tryed 3 time and failed" + ENDC
         return
     try:
         a = requests.get(link,timeout=10)
     except Exception, e:
-        print FAIL + str(e) + ENDC
+        print FAIL + "\nS_"+str(i)+"E_"+str(j)+" "+str(e) + ENDC
         wait_for_internet()
         leve1(link,i,j,s_name,try1+1)
         return
@@ -273,4 +271,3 @@ watchseries("http://thewatchseries.to/serie/The_Originals")
 watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
 watchseries("http://thewatchseries.to/serie/grimm")
 watchseries("http://thewatchseries.to/serie/the_expanse")
-notify("WS Downloader - newly downloader",notification_complete)
