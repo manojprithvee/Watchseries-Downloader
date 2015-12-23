@@ -13,7 +13,7 @@ class justdubbed(object):
 	def __init__(self, link):
 		super(justdubbed, self).__init__()
 		pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
-    	a = raw_input("enter the watchseries.to Link:")
+    	a = raw_input("enter the Link:")
     	if not pattern.match(a):
     		print "enter a correct link"
     		os._exit()
