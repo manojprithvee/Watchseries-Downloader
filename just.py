@@ -16,10 +16,10 @@ class justdubbed(object):
     	a = raw_input("enter the watchseries.to Link:")
     	if not pattern.match(a):
     		print "enter a correct link"
-    		return
+    		os._exit()
     	if link.find("www.justanimedubbed.tv/")==-1:
     		print "enter a correct link"
-    		return
+    		os._exit()
 		self.s_name=link.split("/")[-2]
 		notify("JustDubbedAnime Downloader","Started Downloading "+self.s_name)
 		self.justdubbedlevel1(link)
