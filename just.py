@@ -1,4 +1,4 @@
-import requests,lxml.html as lh,re,os,subprocess,json
+import requests,lxml.html as lh,re,os,subprocess,json,sys,time
 def wait_for_internet():
     print ('Waiting for internet..')
     while True:
@@ -11,6 +11,7 @@ def wait_for_internet():
             sys.stdout.write("..")
             sys.stdout.flush()
             time.sleep(2)
+wait_for_internet()
 def notify(title1,message,try1=1,pri=0):
 	if try1>=4:
 		print "4 Retries failed"
@@ -81,7 +82,7 @@ class justdubbed(object):
 			justdubbedlevel3(self,Embeded_Link,Episold_Name,try1+1)
 		for i in urls:
 			if i.find(".mp4") != -1:
-				urls = i[:-2]
+				urls = i
 				break
 		os.system("mkdir -p /home/manoj/Downloads/justdubbed/" + self.s_name + "/")
 		namel = "/home/manoj/Downloads/justdubbed/" + self.s_name +"/"+Episold_Name + ".mp4"
