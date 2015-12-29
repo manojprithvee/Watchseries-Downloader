@@ -179,15 +179,17 @@ def leve1_epi(link,i,j,s_name,try1):
 def rundownload(s_name):
     global gorillavialist
     data[s_name]["episold_list"] = list(gorillavialist)
-    season = 0
-    episold = 0
+    season = 1
+    episold_start = 15
     if "--reverse" in sys.argv:
         gorillavialist=gorillavialist[::-1]
     for season in range(50):
         for episold in range(200):
             for i in gorillavialist:
                 if i[2] == season and i[3] == episold:
-                    gorillavia(i[0], i[1], i[2], i[3], i[4],1)
+                    if i[3] > episold_start:
+                        episold_start=0
+                        gorillavia(i[0], i[1], i[2], i[3], i[4],1)
     gorillavialist=list()
 
 
@@ -215,12 +217,15 @@ def datamining(link,s_name):
     doc = lh.fromstring(a.text)
     epview = doc.xpath('//meta[@itemprop="url"]/@content')
     threads=list()
+    jp=16
     for i in range(50):
         for j in range(200):
             for x in epview:
-                if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                    # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
-                    threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
+                if j>jp:
+                    jp=0
+                    if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
+                        leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+                        # threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
     index=1
     sublist=list()
     for a in threads:
@@ -243,6 +248,7 @@ def main():
     a = raw_input("enter the watchseries.to Link:")
     if pattern.match(a):
         if a.find("watchseries") != -1:
+            wait_for_internet()
             if a.find("/episode/") != -1 and len(a.split("/")) == 5:
                 b = raw_input("enter the season number:")
                 c = raw_input("enter the episode number:")
@@ -256,18 +262,19 @@ def main():
             print "enter a watchseries.to link"
     else:
         print "enter a link "
-watchseries("http://thewatchseries.to/serie/arrow")
-watchseries("http://thewatchseries.to/serie/scorpion")
-watchseries("http://thewatchseries.to/serie/supergirl")
-watchseries("http://thewatchseries.to/serie/the_flash_2014_")
-watchseries("http://thewatchseries.to/serie/csi_cyber")
-watchseries("http://thewatchseries.to/serie/Agents_of_S_H_I_E_L_D")
-watchseries("http://thewatchseries.to/serie/the_librarians_us_")
-watchseries("http://thewatchseries.to/serie/quantico")
-watchseries("http://thewatchseries.to/serie/daredevil")
-watchseries("http://thewatchseries.to/serie/jessica_jones")
-watchseries("http://thewatchseries.to/serie/madame_secretary")
-watchseries("http://thewatchseries.to/serie/The_Originals")
-watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
-watchseries("http://thewatchseries.to/serie/grimm")
-watchseries("http://thewatchseries.to/serie/the_expanse")
+# watchseries("http://thewatchseries.to/serie/arrow")
+# watchseries("http://thewatchseries.to/serie/scorpion")
+# watchseries("http://thewatchseries.to/serie/supergirl")
+# watchseries("http://thewatchseries.to/serie/the_flash_2014_")
+# watchseries("http://thewatchseries.to/serie/csi_cyber")
+# watchseries("http://thewatchseries.to/serie/Agents_of_S_H_I_E_L_D")
+# watchseries("http://thewatchseries.to/serie/the_librarians_us_")
+# watchseries("http://thewatchseries.to/serie/quantico")
+# watchseries("http://thewatchseries.to/serie/daredevil")
+# watchseries("http://thewatchseries.to/serie/jessica_jones")
+# watchseries("http://thewatchseries.to/serie/madame_secretary")
+# watchseries("http://thewatchseries.to/serie/The_Originals")
+# watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+# watchseries("http://thewatchseries.to/serie/grimm")
+# watchseries("http://thewatchseries.to/serie/the_expanse")
+main()

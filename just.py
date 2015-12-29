@@ -35,6 +35,7 @@ class justdubbed(object):
 	def justdubbedlevel1(self,link,try1=1):
 		if try1>3:
 			print error
+			return
 		try:
 			raw_data=requests.get(link)
 		except Exception, e:
@@ -55,6 +56,7 @@ class justdubbed(object):
 	def justdubbedlevel2(self,Episold_Link,Episold_Name,try1=1):
 		if try1>3:
 			print error
+			return
 		try:
 			raw_data=requests.get(Episold_Link)
 		except Exception, e:
@@ -72,6 +74,9 @@ class justdubbed(object):
 		self.justdubbedlevel3(Embeded_Links[0],Episold_Name)
 
 	def justdubbedlevel3(self,Embeded_Link,Episold_Name,try1=1):
+		if try1>3:
+			print error
+			return
 		print Episold_Name +"\n\n"
 		try:
 			a = requests.get(Embeded_Link)
@@ -86,7 +91,9 @@ class justdubbed(object):
 				break
 		os.system("mkdir -p /home/manoj/Downloads/justdubbed/" + self.s_name + "/")
 		namel = "/home/manoj/Downloads/justdubbed/" + self.s_name +"/"+Episold_Name + ".mp4"
-		out = Run_process('wget  -c -T 10 -O "' + namel + '" "' + urls+'"',Episold_Name)
+		out = Run_process('wget  -c -T 10 -O "' + namel + '" "' + urls[:-2]+'"',Episold_Name)
+		if out.find("Giving up"):
+			justdubbedlevel3(self,Embeded_Link,Episold_Name,try1+1)
 
 def Run_process(exe,Episold_Name):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
@@ -100,7 +107,7 @@ def Run_process(exe,Episold_Name):
         temp = out
         if len(temp) > 30:
             if out.find("     100%")!=-1:
-                print "-------------------------------Completed----------------------------------"
+                print "\r-------------------------------Completed----------------------------------"
                 notify("JustDubbedAnime Downloader","Completed Downloading "+Episold_Name)
             else:
                 print temp,
@@ -115,6 +122,14 @@ def Run_process(exe,Episold_Name):
                     	pass
         final = final + out
         if retcode is not None:
-            return final	
-justdubbed("http://www.justanimedubbed.tv/watch/rurouni-kenshin/")
-
+            return final
+pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+a = raw_input("enter the JustDubbedAnime Link:")
+if pattern.match(a):
+    if a.find("just") != -1:
+        wait_for_internet()
+        justdubbed(a)
+    else:
+        print "enter a JustDubbedAnime.tv link"
+else:
+    print "enter a link " 	
