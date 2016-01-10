@@ -48,7 +48,7 @@ def notify(title1,message,try1=1,pri=0):
         notify(title1,message,try1+1)
 
 def wait_for_internet():
-    print ('Waiting for internet..')
+    print 'Waiting for internet..',
     while True:
         p = subprocess.Popen("ping -c 1 8.8.8.8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True,
                              executable="/bin/bash")
@@ -56,13 +56,15 @@ def wait_for_internet():
         if output.find("100% packet loss") == -1 and output.find("connect: Network is unreachable") == -1:
             return
         else:
-            sys.stdout.write("..")
+            sys.stdout.write(".")
             sys.stdout.flush()
-            time.sleep(2)
+            
+        
 
-def Run_process(exe,namel):
+def Run_process(exe,namel,season, episold,s_name):
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
     final = ""
+    abc=0
     while True:
         retcode = p.poll()  # returns None while subprocess is running
         out = p.stdout.readline()
@@ -73,29 +75,38 @@ def Run_process(exe,namel):
         global data
         os.system("setterm -cursor off && stty -echo")
         if len(temp) > 30:
-                print temp,
+            pass
+            # print temp,
         if len(temp) < 30:
             if temp.find("skipping") == -1:
                 a = out.strip().split(" ")
                 if a != [""]:
                     a = [x for x in a if x != ""]
                     print("\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
-                        2] + "B\s" + " Time Remaining: " + a[3] + "\033[0m \r"),
+                        2] + "B\s Time : " + a[3] +" episold: " + "S_" + str(season) + "E_" + str(episold) + "\033[0m \r"),
 
         final = final + out
+        if abc==0 and final.find("100%")!=-1:
+            abc=1
+            global notification_complete
+            print "S_" + str(season) + "E_" + str(episold)+"\n-------------------------------Completed----------------------------------"
+            notification_complete=notification_complete+s_name +'Season '+str(season)+" Episold "+str(episold)+"\n"
+        if abc==0 and final.find("416 Requested Range Not Satisfiable")!=-1:
+            abc=1
+            print "S_" + str(season) + "E_" + str(episold)+"\n---------- Its Already Downloaded ----------"
+
         if retcode is not None:
             os.system("setterm -cursor on && stty echo")
             return final
 
 
 def gorillavia(link, name, season, episold, s_name,try1):
-    print "S_" + str(season) + "E_" + str(episold)
-    print "try "+str(try1)
+
     try:
         if link.find("gorillavid.in") == -1:
-            print FAIL + "This has no gorillavid Links" + ENDC
+            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nThis has no gorillavid Links" + ENDC
         elif(try1==4):
-            print FAIL + "tryed 3 time and failed" + ENDC
+            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nTryed 3 Time And Failed" + ENDC
             return
         else:
             a = requests.get(link, headers={"User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36","Upgrade-Insecure-Requests": 1})
@@ -111,24 +122,22 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 try:
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
-                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls, namel)
-                    if out.find("     100%")!=-1:
-                        print "-------------------------------Completed----------------------------------"
-                        notification_complete=notification_complete+s_name +'Season '+str(season)+" Episold "+str(episold)+"\n"
+                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                    
                 except Exception, e:
-                    print FAIL + str(e) + ENDC
+                    print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(e) + ENDC
                     print "enter a number for speed"
                     os._exit(0)
             else:
-                out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel)
+                out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                 if out.find("failed:")!=-1:
                     gorillavia(link, name, season, episold, s_name,try1+1)
                     return
     except Exception, e:
-        print FAIL + str(e) + ENDC
+        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e) + ENDC
         global client
         wait_for_internet()
-        if try1==1:
+        if try1==1 and str(e).find("HTTPConnectionPool")==-1:
             notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
         gorillavia(link,name,season,episold,s_name,try1+1)
         return
@@ -142,7 +151,7 @@ def leve1(link, i, j, s_name,try1):
     try:
         a = requests.get(link,timeout=10)
     except Exception, e:
-        print FAIL + "\nS_"+str(i)+"E_"+str(j)+" "+str(e) + ENDC
+        print FAIL + "S_"+str(i)+"E_"+str(j)+"\n "+str(e) + ENDC
         wait_for_internet()
         leve1(link,i,j,s_name,try1+1)
         return
@@ -164,7 +173,7 @@ def leve1_epi(link,i,j,s_name,try1):
     try:
         a=requests.get(link)
     except Exception, e:
-        print FAIL + str(e)+ ENDC
+        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e)+ ENDC
         wait_for_internet()
         leve1_epi(link,i,j,s_name,try1+1)
         return
@@ -176,29 +185,44 @@ def leve1_epi(link,i,j,s_name,try1):
     name=name.split(" - ")[1]
     gorillavia(base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name,1)
 
-def rundownload(s_name):
+def rundownload(s_name,start_season,start_episold):
     global gorillavialist
     data[s_name]["episold_list"] = list(gorillavialist)
     season = 1
-    episold_start = 15
+    episold_start = 3
     if "--reverse" in sys.argv:
         gorillavialist=gorillavialist[::-1]
+    threads=list()
     for season in range(50):
         for episold in range(200):
             for i in gorillavialist:
                 if i[2] == season and i[3] == episold:
-                    if i[3] > episold_start:
+                    if i[3] >= start_episold and i[2] >= start_season:
+                    # threads.append(threading.Thread(target=gorillavia,args=(i[0], i[1], i[2], i[3], i[4],1)))
                         episold_start=0
                         gorillavia(i[0], i[1], i[2], i[3], i[4],1)
+    # index=1
+    # sublist=list()
+    # for a in threads:
+    #     if index%2==0:
+    #         for i in sublist:
+    #             i.join()
+    #         sublist=list()
+    #     a.start()
+    #     sublist.append(a)
+    #     index=index+1
+    # for i in sublist:
+    #     i.join()
     gorillavialist=list()
 
 
-def watchseries(link):
+def watchseries(link,start_season=0,start_episold=0):
+    wait_for_internet()
     s_name = link.split("/")[-1]
-    print s_name
+    print "\n"+s_name.replace("_"," ")
     if s_name not in data:
             datamining(link,s_name)
-            rundownload(s_name)
+            rundownload(s_name,start_season,start_episold)
             gorillavialist=list()
 
     else:
@@ -217,19 +241,16 @@ def datamining(link,s_name):
     doc = lh.fromstring(a.text)
     epview = doc.xpath('//meta[@itemprop="url"]/@content')
     threads=list()
-    jp=16
     for i in range(50):
         for j in range(200):
             for x in epview:
-                if j>jp:
-                    jp=0
-                    if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                        leve1("http://thewatchseries.to" + x, i, j, s_name,1)
-                        # threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
+                if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
+                    # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+                    threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
     index=1
     sublist=list()
     for a in threads:
-        if index%10==0:
+        if index%15==0:
             for i in sublist:
                 i.join()
             sublist=list()
@@ -255,26 +276,32 @@ def main():
                 d = raw_input("enter the episode name:")
                 leve1_epi(a, b, c, d,1)
             elif a.find("/serie/") != -1 and len(a.split("/")) == 5:
-                watchseries(a)
+                
+                if raw_input("do u want to start form the top (y or n)").lower()=="y":
+                    watchseries(a)
+                else:
+                    watchseries(a,int(raw_input("enter the sesaon number")),int(raw_input("enter the Episold number")))
             else:
                 print "enter a url of a series or a episode"
         else:
             print "enter a watchseries.to link"
     else:
         print "enter a link "
-# watchseries("http://thewatchseries.to/serie/arrow")
-# watchseries("http://thewatchseries.to/serie/scorpion")
-# watchseries("http://thewatchseries.to/serie/supergirl")
-# watchseries("http://thewatchseries.to/serie/the_flash_2014_")
-# watchseries("http://thewatchseries.to/serie/csi_cyber")
-# watchseries("http://thewatchseries.to/serie/Agents_of_S_H_I_E_L_D")
-# watchseries("http://thewatchseries.to/serie/the_librarians_us_")
-# watchseries("http://thewatchseries.to/serie/quantico")
-# watchseries("http://thewatchseries.to/serie/daredevil")
-# watchseries("http://thewatchseries.to/serie/jessica_jones")
-# watchseries("http://thewatchseries.to/serie/madame_secretary")
-# watchseries("http://thewatchseries.to/serie/The_Originals")
-# watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
-# watchseries("http://thewatchseries.to/serie/grimm")
-# watchseries("http://thewatchseries.to/serie/the_expanse")
-main()
+watchseries("http://thewatchseries.to/serie/person_of_interest",3,0)
+watchseries("http://thewatchseries.to/serie/last_man_standing")
+watchseries("http://thewatchseries.to/serie/arrow")
+watchseries("http://thewatchseries.to/serie/scorpion")
+watchseries("http://thewatchseries.to/serie/supergirl")
+watchseries("http://thewatchseries.to/serie/the_flash_2014_")
+watchseries("http://thewatchseries.to/serie/csi_cyber")
+watchseries("http://thewatchseries.to/serie/Agents_of_S_H_I_E_L_D")
+watchseries("http://thewatchseries.to/serie/the_librarians_us_")
+watchseries("http://thewatchseries.to/serie/quantico")
+watchseries("http://thewatchseries.to/serie/daredevil")
+watchseries("http://thewatchseries.to/serie/jessica_jones")
+watchseries("http://thewatchseries.to/serie/madame_secretary")
+watchseries("http://thewatchseries.to/serie/The_Originals")
+watchseries("http://thewatchseries.to/serie/the_vampire_diaries")
+watchseries("http://thewatchseries.to/serie/grimm")
+watchseries("http://thewatchseries.to/serie/the_expanse")
+# main()
