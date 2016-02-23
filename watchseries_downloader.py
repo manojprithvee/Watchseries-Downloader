@@ -13,6 +13,9 @@ ENDC = '\033[0m'
 data={}
 gorillavialist = list()
 notification_complete=""
+filread=open("test.json","r")
+s_names=json.loads(filread.read())
+filread.close()
 def onexit():
     print "saving status.."
     if notification_complete!="":
@@ -47,15 +50,16 @@ def notify(title1,message,try1=1,pri=0):
 
 def wait_for_internet():
     print 'Waiting for internet..',
-    while True:
-        p = subprocess.Popen("ping -c 1 8.8.8.8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True,
-                             executable="/bin/bash")
-        output = p.stdout.read()
-        if output.find("100% packet loss") == -1 and output.find("connect: Network is unreachable") == -1:
-            return
-        else:
-            sys.stdout.write(".")
-            sys.stdout.flush()
+
+    # while True:
+    #     p = subprocess.Popen("ping -c 1 8.8.8.8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True,
+    #                          executable="/bin/bash")
+    #     output = p.stdout.read()
+    #     if output.find("100% packet loss") == -1 and output.find("connect: Network is unreachable") == -1:
+    #         return
+    #     else:
+    #         sys.stdout.write(".")
+    #         sys.stdout.flush()
             
         
 
@@ -72,8 +76,8 @@ def Run_process(exe,namel,season, episold,s_name):
         temp = out
         global data
         if len(temp) > 30:
-            pass
-            # print temp,
+            # pass
+            print temp,
         if len(temp) < 30:
             if temp.find("skipping") == -1:
                 a = out.strip().split(" ")
@@ -160,7 +164,7 @@ def leve1(link, i, j, s_name,try1):
     if final!=[]:
         gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
     else:
-        print "no links found"
+        pass
 
 
 def leve1_epi(link,i,j,s_name,try1):
@@ -190,13 +194,28 @@ def rundownload(s_name):
     if "--reverse" in sys.argv:
         gorillavialist=gorillavialist[::-1]
     threads=list()
+    currentseason=0
+    currentepi=0
     for season in range(50):
         for episold in range(200):
             for i in gorillavialist:
                 if i[2] == season and i[3] == episold:
-                    
                     # threads.append(threading.Thread(target=gorillavia,args=(i[0], i[1], i[2], i[3], i[4],1)))
                     gorillavia(i[0], i[1], i[2], i[3], i[4],1)
+                    currentseason=i[2]
+                    currentepi=i[3]
+                    # filread=open("test.json","r")
+    for j in s_names:
+        if j[0]==s_name:
+            j[1]=currentseason
+            j[2]=currentepi+1
+    filwite=open("test.json","w")
+    filwite.write(json.dumps(s_names))
+    filwite.close()
+
+
+# filread.close()
+                    
     # index=1
     # sublist=list()
     # for a in threads:
@@ -212,21 +231,22 @@ def rundownload(s_name):
     gorillavialist=list()
 
 
-def watchseries(link,start_season=0,start_episold=0):
+def watchseries(link,start_season=0,start_episold=0,final_season=50000,final_episold=50000):
     wait_for_internet()
     s_name = link.split("/")[-1]
     print "\n"+s_name.replace("_"," ")
-    datamining(link,s_name,start_season,start_episold)
+    datamining(link,s_name,start_season,start_episold,final_season,final_episold)
     rundownload(s_name)
     gorillavialist=list()
 
-def datamining(link,s_name,start_season,start_episold):
+def datamining(link,s_name,start_season,start_episold,final_season,final_episold):
+    
     try:
         a = requests.get(link)
     except Exception, e:
         print FAIL + str(e) + ENDC
         wait_for_internet()
-        datamining(link,s_name)
+        datamining(link,s_name,start_season,start_episold,final_season,final_episold)
         return
     doc = lh.fromstring(a.text)
     epview = doc.xpath('//meta[@itemprop="url"]/@content')
@@ -235,21 +255,21 @@ def datamining(link,s_name,start_season,start_episold):
         for j in range(200):
             for x in epview:
                 if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
-                    if j >= start_episold and i >= start_season:
-                        leve1("http://thewatchseries.to" + x, i, j, s_name,1)
-                        # threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
-    # index=1
-    # sublist=list()
-    # for a in threads:
-    #     if index%15==0:
-    #         for i in sublist:
-    #             i.join()
-    #         sublist=list()
-    #     a.start()
-    #     sublist.append(a)
-    #     index=index+1
-    # for i in sublist:
-    #     i.join()
+                    if j >= start_episold and i >= start_season and i<=final_season and j<=final_episold:
+                        # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+                        threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
+    index=1
+    sublist=list()
+    for a in threads:
+        if index%15==0:
+            for i in sublist:
+                i.join()
+            sublist=list()
+        a.start()
+        sublist.append(a)
+        index=index+1
+    for i in sublist:
+        i.join()
 
         
     data[s_name] = {}
@@ -282,39 +302,45 @@ if "--main" in sys.argv:
     main()
 else:
     threads=list()  
-    s_names=[["arrow"]
-    ,["person_of_interest",4,0]
-    ,["last_man_standing"]
-    ,["scorpion",2,13]
-    ,["supergirl"]
-    ,["the_flash_2014_"]
-    ,["csi_cyber"]
-    ,["Agents_of_S_H_I_E_L_D"]
-    ,["the_librarians_us_"]
-    ,["quantico"]
-    ,["daredevil"]
-    ,["jessica_jones"]
-    ,["madame_secretary"]
-    ,["The_Originals"]
-    ,["the_vampire_diaries"]
-    ,["grimm"]
-    ,["the_expanse"]]
+    # s_names=[
+    #     ["madame_secretary",2,13],
+    #     ["scorpion",2,15],
+    #     ["supergirl",1,3],
+    #     ["csi_cyber",2,12],
+    #     ["dc_s_legends_of_tomorrow",1,4],
+    #     ["the_good_wife",7,9,7],
+    #     ["the_flash_2014_",2,14],
+    #     ["arrow",4,14],
+    #     ["The_Originals",3,10],
+    #     ["the_vampire_diaries",7,11],
+    #     ["big_bang_theory",9,14],
+    #     ["person_of_interest",4,0],
+    #     ["izombie",2,12],
+    #     ["last_man_standing"],
+    #     ["Agents_of_S_H_I_E_L_D"],
+    #     ["the_librarians_us_",2,10],
+    #     ["quantico",2,0],
+    #     ["daredevil",1,13],
+    #     ["jessica_jones",1,13],
+    #     ["grimm",5,7],
+    # ]
     for i in s_names:
         if len(i)==3:
-            threads.append(threading.Thread(target=watchseries,args=("http://thewatchseries.to/serie/"+i[0],i[1],i[2])))
+            watchseries("http://thewatchseries.to/serie/"+i[0],i[1],i[2])
         elif len(i)==1:
-            threads.append(threading.Thread(target=watchseries,args=("http://thewatchseries.to/serie/"+i[0],)))
-        else:
-            raise ValueError("watchseries-Need Exactly 3 Arguments")
-    index=1
-    sublist=list()
-    for a in threads:
-        if index%5==0:
-            for i in sublist:
-                i.join()
-            sublist=list()
-        a.start()
-        sublist.append(a)
-        index=index+1
-    for i in sublist:
-        i.join()
+            watchseries("http://thewatchseries.to/serie/"+i[0])
+        elif len(i)==4:
+            watchseries("http://thewatchseries.to/serie/"+i[0],i[1],i[2],i[3])
+            # raise ValueError("watchseries-Need Exactly 3 Arguments")
+    # index=1
+    # sublist=list()
+    # for a in threads:
+    #     if index%1==0:
+    #         for i in sublist:
+    #             i.join()
+    #         sublist=list()
+    #     a.start()
+    #     sublist.append(a)
+    #     index=index+1
+    # for i in sublist:
+    #     i.join()
