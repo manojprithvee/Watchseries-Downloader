@@ -1,4 +1,4 @@
-import requests,lxml.html as lh,re,os,subprocess,json,sys,time
+import requests,lxml.html as lh,re,os,subprocess,json,sys,time,threading
 def wait_for_internet():
     print ('Waiting for internet..')
     # while True:
@@ -65,12 +65,25 @@ class justdubbed(object):
 		self.justdubbedlevel2inter(Episold_Links,Episold_Names,startfrom)
 
 	def justdubbedlevel2inter(self,Episold_Links,Episold_Names,startfrom=0):
+		threads=list()
 		for epl in Episold_Links:
 			if int(Episold_Names[Episold_Links.index(epl)].split(" ")[-1])>=startfrom:
 				try:
-					self.justdubbedlevel2(epl,Episold_Names[Episold_Links.index(epl)])
+					threads.append(threading.Thread(target=self.justdubbedlevel2,args=(epl,Episold_Names[Episold_Links.index(epl)])))
 				except ValueError,e:
 					pass
+		index=1
+		sublist=list()
+		for a in threads:
+			if index%30==0:
+				for i in sublist:
+					i.join()
+				sublist=list()
+			a.start()
+			sublist.append(a)
+			index=index+1
+		for i in sublist:
+			i.join()
 
 	def justdubbedlevel2(self,Episold_Link,Episold_Name,try1=1):
 		if try1>3:
@@ -124,7 +137,7 @@ class justdubbed(object):
 # justdubbed("http://www.justanimedubbed.tv/watch/fullmetal-alchemist-brotherhood/")
 # justdubbed("http://www.justanimedubbed.tv/watch/blue-exorcist/")
 # justdubbed("http://www.justanimedubbed.tv/watch/megas-xlr/")
-justdubbed("http://www.justanimedubbed.tv/watch/fairy-tail/",200)
+justdubbed("http://www.justanimedubbed.tv/watch/fairy-tail/",100)
 justdubbed("http://www.justanimedubbed.tv/watch/magical-warfare/")
 justdubbed("http://www.justanimedubbed.tv/watch/infinite-stratos/")
 justdubbed("http://www.justanimedubbed.tv/watch/infinite-stratos-2/")
