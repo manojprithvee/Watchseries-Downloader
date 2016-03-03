@@ -124,16 +124,23 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
             if "-l" in sys.argv:
                 try:
-                    print "speed"
-                    speed=int(sys.argv[sys.argv.index("-l")+1])
-                    out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+					print "speed"
+					speed=int(sys.argv[sys.argv.index("-l")+1])
+					out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+					if out.find("100%")!=-1:
+						for j in s_names:
+							if j[0]==s_name:
+								j[1]=season
+								j[2]=episold+1
+						filwite=open("test.json","w")
+						filwite.write(json.dumps(s_names))
+						filwite.close()
                 except Exception, e:
-                    
                     print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(e) + ENDC
                     print "enter a number for speed"
                     os._exit(0)
             else:
-                out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+				out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
 				if out.find("100%")!=-1:
 					for j in s_names:
 						if j[0]==s_name:
@@ -142,10 +149,10 @@ def gorillavia(link, name, season, episold, s_name,try1):
 					filwite=open("test.json","w")
 					filwite.write(json.dumps(s_names))
 					filwite.close()
-                if out.find("failed:")!=-1:
-                    gorillavia(link, name, season, episold, s_name,try1+1)
-                if out.find("ERROR")!=-1:
-                    gorillavia(link, name, season, episold, s_name,try1+1)
+				if out.find("failed:")!=-1:
+					gorillavia(link, name, season, episold, s_name,try1+1)
+				if out.find("ERROR")!=-1:
+					gorillavia(link, name, season, episold, s_name,try1+1)
                     
     except Exception, e:
         print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e) + ENDC
@@ -168,12 +175,16 @@ def leve1(link, i, j, s_name,try1):
         leve1(link,i,j,s_name,try1+1)
         return
     doc = lh.fromstring(a.text)
-    final = doc.xpath('//*[2]/td[2]/a/@href')
-    # print link
+    temp=list()
+    final=re.findall('(?<=\/cale.html\?r=)\w+.*(?=" class)',a.text)
+    for x in final:
+    	temp.append(base64.b64decode(x))
+    final=temp
+    # final = doc.xpath('//tr[2]/td[2]/a/@href')
     name = doc.xpath("//title/text()")[0]
     name = name.split(" - ")[1]
     if final!=[]:
-        gorillavialist.append([base64.b64decode(final[0].replace("/cale.html?r=","")[:56]),name,i,j,s_name])
+        gorillavialist.append([final[0],name,i,j,s_name])
     else:
         pass
 
@@ -191,7 +202,8 @@ def leve1_epi(link,i,j,s_name,try1=1):
         return
     html=a.text.encode('ascii', 'ignore').decode('ascii')
     doc = lh.fromstring(a.text)
-    final=doc.xpath('//*[2]/td[2]/a/@href')
+
+    final=doc.xpath('//tr[2]/td[2]/a/@href')
     #print link
     name=doc.xpath("//title/text()")[0]
     name=name.split(" - ")[1]
