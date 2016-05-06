@@ -1,8 +1,6 @@
-# TODO add pause button
 '''
 options 
 -reverse to start from latest episold
--p to poweroff after download is Completed
 -l <number> limit the download in kb
 '''
 import requests, re, os, base64, subprocess, time, sys, json, atexit,threading,getpass
@@ -15,14 +13,11 @@ gorillavialist = list()
 notification_complete=""
 filread=open("test.json","r")
 s_names=json.loads(filread.read())
+atexit.register(onexit)
 def onexit():
     print "saving status.."
     if notification_complete!="":
         notify("WS Downloader - newly downloaded",notification_complete)
-    
-
-
-atexit.register(onexit)
 
 def notify(title1,message,try1=1,pri=0):
     if try1>=4:
@@ -57,8 +52,6 @@ def wait_for_internet():
         else:
             sys.stdout.write(".")
             sys.stdout.flush()
-            
-        
 
 def Run_process(exe,namel,season, episold,s_name):
     if Ostype=="Windows":
@@ -85,7 +78,6 @@ def Run_process(exe,namel,season, episold,s_name):
                     a = [x for x in a if x != ""]
                     print("\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
                         2] + "B\s Time : " + a[3] +" episold: " + "S_" + str(season) + "E_" + str(episold) + "\033[0m \r"),
-
         final = final + out
         if abc==0 and final.find("100%")!=-1:
             abc=1
@@ -95,15 +87,12 @@ def Run_process(exe,namel,season, episold,s_name):
         if abc==0 and final.find("416 Requested Range Not Satisfiable")!=-1:
             abc=1
             print "S_" + str(season) + "E_" + str(episold)+"\n---------- Its Already Downloaded ----------"
-
         if retcode is not None:
-            os.system("setterm -cursor on && stty echo")
+            if Ostype=="Linux":
+                os.system("setterm -cursor on && stty echo")
             return final
-        
-
 
 def gorillavia(link, name, season, episold, s_name,try1):
-
     try:
         if link.find("gorillavid.in") == -1:
             print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nThis has no gorillavid Links" + ENDC
@@ -160,8 +149,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
 						filwite.write(json.dumps(s_names))
 						filwite.close()
                 if out.find("failed:")!=-1:
-                    gorillavia(link, name, season, episold, s_name,try1+1)
-                    
+                    gorillavia(link, name, season, episold, s_name,try1+1)            
     except Exception, e:
         print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e) + ENDC
         global client
@@ -170,8 +158,6 @@ def gorillavia(link, name, season, episold, s_name,try1):
             notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
         gorillavia(link,name,season,episold,s_name,try1+1)
         
-
-
 def leve1(link, i, j, s_name,try1):
     print "\nS_"+str(i)+"E_"+str(j),
     if(try1==4):
@@ -193,7 +179,6 @@ def leve1(link, i, j, s_name,try1):
         gorillavialist.append([base64.b64decode(final[1].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
     else:
         print "no links found"
-
 
 def leve1_epi(link,i,j,s_name,try1=1):
     if(try1==4):
@@ -290,11 +275,8 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
         sublist.append(a)
         index=index+1
     for i in sublist:
-        i.join()
-
-        
+        i.join() 
     data[s_name] = {}
-
 
 def main():
     pattern = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
