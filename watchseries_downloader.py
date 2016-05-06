@@ -104,8 +104,7 @@ def Run_process(exe,namel,season, episold,s_name):
 
 def gorillavia(link, name, season, episold, s_name,try1):
 
-    # try:
-        print link
+    try:
         if link.find("gorillavid.in") == -1:
             print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nThis has no gorillavid Links" + ENDC
         elif(try1==4):
@@ -141,7 +140,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
 						for j in s_names:
 							if j[0]==s_name:
 								j[1]=season
-								j[2]=episold+1
+								j[2]=int(episold)+1
 						filwite=open("test.json","w")
 						filwite.write(json.dumps(s_names))
 						filwite.close()
@@ -150,6 +149,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     print "enter a number for speed"
                     os._exit(0)
             else:
+                print 'wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name
                 out = Run_process('wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                 if out.find("100%")!=-1:
 						for j in s_names:
@@ -162,13 +162,13 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 if out.find("failed:")!=-1:
                     gorillavia(link, name, season, episold, s_name,try1+1)
                     
-    # except Exception, e:
-    #     print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e) + ENDC
-    #     global client
-    #     wait_for_internet()
-    #     if try1==1 and str(e).find("HTTPConnectionPool")==-1:
-    #         notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
-    #     gorillavia(link,name,season,episold,s_name,try1+1)
+    except Exception, e:
+        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e) + ENDC
+        global client
+        wait_for_internet()
+        if try1==1 and str(e).find("HTTPConnectionPool")==-1:
+            notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
+        gorillavia(link,name,season,episold,s_name,try1+1)
         
 
 
@@ -195,7 +195,7 @@ def leve1(link, i, j, s_name,try1):
         print "no links found"
 
 
-def leve1_epi(link,i,j,s_name,try1):
+def leve1_epi(link,i,j,s_name,try1=1):
     if(try1==4):
         print FAIL + "tryed 3 time and failed" + ENDC
         return
@@ -208,10 +208,12 @@ def leve1_epi(link,i,j,s_name,try1):
         return
     html=a.text.encode('ascii', 'ignore').decode('ascii')
     doc = lh.fromstring(a.text)
-    final = doc.xpath('//a[@class="buttonlink"]/@href')
+
+    final=doc.xpath('//a[@class="buttonlink"]/@href')
+    #print link
     name=doc.xpath("//title/text()")[0]
     name=name.split(" - ")[1]
-    gorillavia(base64.b64decode(final[1].replace("/cale.html?r=","")[:56]),name,i,j,s_name,1)
+    gorillavia(base64.b64decode(final[1].replace("/cale.html?r=", "")[:56]), name, i, j, s_name,1)
 
 def rundownload(s_name):
     print "enter rundownload"
