@@ -13,11 +13,12 @@ gorillavialist = list()
 notification_complete=""
 filread=open("test.json","r")
 s_names=json.loads(filread.read())
-atexit.register(onexit)
 def onexit():
     print "saving status.."
     if notification_complete!="":
         notify("WS Downloader - newly downloaded",notification_complete)
+
+atexit.register(onexit)
 
 def notify(title1,message,try1=1,pri=0):
     if try1>=4:
