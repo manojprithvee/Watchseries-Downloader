@@ -9,6 +9,7 @@ Ostype=platform.system()
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 data={}
+flagnotin=1
 gorillavialist = list()
 notification_complete=""
 filread=open("test.json","r")
@@ -127,13 +128,18 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     speed=int(sys.argv[sys.argv.index("-l")+1])
                     out = Run_process('wget.exe  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                     if out.find("100%")!=-1:
-						for j in s_names:
-							if j[0]==s_name:
-								j[1]=season
-								j[2]=int(episold)+1
-						filwite=open("test.json","w")
-						filwite.write(json.dumps(s_names))
-						filwite.close()
+                        flagnotin=1
+                        for j in s_names:
+                            if j[0]==s_name:
+                                j[1]=season
+                                j[2]=episold+1
+                                flagnotin=0
+                        if flagnotin==1:
+                            [[s_name,season,episode]]+s_names
+                            
+                        filwite=open("test.json","w")
+                        filwite.write(json.dumps(s_names))
+                        filwite.close()
                 except Exception, e:
                     print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(e) + ENDC
                     print "enter a number for speed"
@@ -142,13 +148,18 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 print 'wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name
                 out = Run_process('wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                 if out.find("100%")!=-1:
-						for j in s_names:
-							if j[0]==s_name:
-								j[1]=season
-								j[2]=episold+1
-						filwite=open("test.json","w")
-						filwite.write(json.dumps(s_names))
-						filwite.close()
+                    flagnotin=1
+                    for j in s_names:
+                        if j[0]==s_name:
+                            j[1]=season
+                            j[2]=episold+1
+                            flagnotin=0
+                    if flagnotin==1:
+                        [[s_name,season,episode]]+s_names
+                        
+                    filwite=open("test.json","w")
+                    filwite.write(json.dumps(s_names))
+                    filwite.close()
                 if out.find("failed:")!=-1:
                     gorillavia(link, name, season, episold, s_name,try1+1)            
     except Exception, e:
