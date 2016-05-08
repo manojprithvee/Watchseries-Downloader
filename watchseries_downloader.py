@@ -135,7 +135,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
                                 j[2]=episold+1
                                 flagnotin=0
                         if flagnotin==1:
-                            [[s_name,season,episode]]+s_names
+                            [[s_name,season,episold]]+s_names
                             
                         filwite=open("test.json","w")
                         filwite.write(json.dumps(s_names))
@@ -155,7 +155,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
                             j[2]=episold+1
                             flagnotin=0
                     if flagnotin==1:
-                        [[s_name,season,episode]]+s_names
+                        [[s_name,season,episold]]+s_names
                         
                     filwite=open("test.json","w")
                     filwite.write(json.dumps(s_names))
