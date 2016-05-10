@@ -1,11 +1,14 @@
 '''
-options 
+options
+-new to add new series to the list
 -reverse to start from latest episold
 -l <number> limit the download in kb
 '''
-import requests, re, os, base64, subprocess, time, sys, json, atexit,threading,getpass
-import lxml.html as lh,platform
+import requests, re, os, base64, subprocess, time, sys, json, atexit,threading,getpass,lxml.html as lh,platform,traceback
 Ostype=platform.system()
+if Ostype!="Windows":
+    if subprocess.call("type wget", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) != 0:
+        print "Install wget and try again"
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 data={}
@@ -56,14 +59,12 @@ def wait_for_internet():
             sys.stdout.flush()
 
 def Run_process(exe,namel,season, episold,s_name):
-    if Ostype=="Windows":
-        p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    if Ostype=="Linux":
-        p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash")
+    exe=exe.replace("?","")
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True) 
     final = ""
     abc=0
     while True:
-        retcode = p.poll()  # returns None while subprocess is running
+        retcode = p.poll()
         out = p.stdout.readline()
         out = out.replace(".......... ", "").replace(",......... ", "").replace(",,........ ", "").replace(
             ",,,....... ", "").replace(",,,,...... ", "").replace(",,,,,..... ", "").replace(",,,,,,.... ", "").replace(
@@ -90,11 +91,10 @@ def Run_process(exe,namel,season, episold,s_name):
             abc=1
             print "S_" + str(season) + "E_" + str(episold)+"\n---------- Its Already Downloaded ----------"
         if retcode is not None:
-            if Ostype=="Linux":
-                os.system("setterm -cursor on && stty echo")
             return final
 
 def gorillavia(link, name, season, episold, s_name,try1):
+    global s_names
     try:
         if link.find("gorillavid.in") == -1:
             print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nThis has no gorillavid Links" + ENDC
@@ -110,14 +110,14 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     break
             if Ostype=="Windows":
                 try:
-                    os.makedirs("C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\Season-" + str(season)) 
+                    os.makedirs("C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\Season-" + str(season))
                 except:
                     pass
                 namel = "C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\\Season-" + str(
                 season) + "\\" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
             elif Ostype=="Linux":
                 try:
-                    os.makedirs("/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(season)) 
+                    os.makedirs("/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(season))
                 except:
                     pass
                 namel = "/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(
@@ -126,7 +126,10 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 try:
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
-                    out = Run_process('wget.exe  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                    if Ostype=="Windows":
+                        out = Run_process('wget.exe  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                    else:
+                        out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                     if out.find("100%")!=-1:
                         flagnotin=1
                         for j in s_names:
@@ -135,18 +138,20 @@ def gorillavia(link, name, season, episold, s_name,try1):
                                 j[2]=episold+1
                                 flagnotin=0
                         if flagnotin==1:
-                            [[s_name,season,episold]]+s_names
-                            
+                            s_names=[[s_name,int(season),int(episold)]]+s_names
+
                         filwite=open("test.json","w")
                         filwite.write(json.dumps(s_names))
                         filwite.close()
                 except Exception, e:
-                    print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(e) + ENDC
+                    print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(traceback.print_exc()) + ENDC
                     print "enter a number for speed"
                     os._exit(0)
             else:
-                print 'wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name
-                out = Run_process('wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                if Ostype=="Windows":
+                    out = Run_process('wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                else:
+                    out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                 if out.find("100%")!=-1:
                     flagnotin=1
                     for j in s_names:
@@ -155,21 +160,21 @@ def gorillavia(link, name, season, episold, s_name,try1):
                             j[2]=episold+1
                             flagnotin=0
                     if flagnotin==1:
-                        [[s_name,season,episold]]+s_names
-                        
+                        s_names=[[s_name,int(season),int(episold)]]+s_names
+
                     filwite=open("test.json","w")
                     filwite.write(json.dumps(s_names))
                     filwite.close()
                 if out.find("failed:")!=-1:
-                    gorillavia(link, name, season, episold, s_name,try1+1)            
+                    gorillavia(link, name, season, episold, s_name,try1+1)
     except Exception, e:
-        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e) + ENDC
         global client
         wait_for_internet()
         if try1==1 and str(e).find("HTTPConnectionPool")==-1:
-            notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(e),1,1)
+            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(traceback.print_exc()) + ENDC
+            notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(traceback.print_exc()),1,1)
         gorillavia(link,name,season,episold,s_name,try1+1)
-        
+
 def leve1(link, i, j, s_name,try1):
     print "\nS_"+str(i)+"E_"+str(j),
     if(try1==4):
@@ -178,7 +183,7 @@ def leve1(link, i, j, s_name,try1):
     try:
         a = requests.get(link,timeout=10)
     except Exception, e:
-        print FAIL + "S_"+str(i)+"E_"+str(j)+"\n "+str(e) + ENDC
+        print FAIL + "S_"+str(i)+"E_"+str(j)+"\n "+str(traceback.print_exc()) + ENDC
         wait_for_internet()
         leve1(link,i,j,s_name,try1+1)
         return
@@ -199,7 +204,7 @@ def leve1_epi(link,i,j,s_name,try1=1):
     try:
         a=requests.get(link)
     except Exception, e:
-        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(e)+ ENDC
+        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(traceback.print_exc())+ ENDC
         wait_for_internet()
         leve1_epi(link,i,j,s_name,try1+1)
         return
@@ -217,7 +222,7 @@ def rundownload(s_name):
     global gorillavialist
     data[s_name]["episold_list"] = list(gorillavialist)
     season = 1
-    
+
     if "--reverse" in sys.argv:
         gorillavialist=gorillavialist[::-1]
     threads=list()
@@ -225,7 +230,7 @@ def rundownload(s_name):
         for episold in range(200):
             for i in gorillavialist:
                 if i[2] == season and i[3] == episold:
-                    
+
                     # threads.append(threading.Thread(target=gorillavia,args=(i[0], i[1], i[2], i[3], i[4],1)))
                     gorillavia(i[0], i[1], i[2], i[3], i[4],1)
     # index=1
@@ -258,7 +263,7 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
     try:
         a = requests.get(link)
     except Exception, e:
-        print FAIL + str(e) + ENDC
+        print FAIL + str(traceback.print_exc()) + ENDC
         wait_for_internet()
         datamining(link,s_name,start_season,start_episold,final_season,final_episold,try1+1)
         return
@@ -270,13 +275,13 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
             for x in epview:
                 if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
                     if i >= start_season:
-                        if j >= start_episold-1:  
-                            if i<=final_season: 
+                        if j >= start_episold-1:
+                            if i<=final_season:
                                 if j<=final_episold:
                                     # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
                                     threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
         start_episold=0
-    index=1                        
+    index=1
     sublist=list()
     for a in threads:
         if index%15==0:
@@ -287,7 +292,7 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
         sublist.append(a)
         index=index+1
     for i in sublist:
-        i.join() 
+        i.join()
     data[s_name] = {}
 
 def main():
@@ -302,7 +307,7 @@ def main():
                 d=a.split("/")[-1].replace("_s"+b+"_e"+c+".html","")
                 leve1_epi(a, b, c, d)
             elif a.find("/serie/") != -1 and len(a.split("/")) == 5:
-                
+
                 if raw_input("do u want to start form the top (y or n)").lower()=="y":
                     watchseries(a)
                 else:
@@ -313,15 +318,18 @@ def main():
             print "enter a watchseries.to link"
     else:
         print "enter a link "
-if "--main" in sys.argv:
-    main()
-else:
-    threads=list()  
-    for i in s_names:
-        if len(i)==3:
-            watchseries("http://thewatchseries.to/serie/"+i[0],i[1],i[2])
-        elif len(i)==1:
-            watchseries("http://thewatchseries.to/serie/"+i[0])
-        elif len(i)==4:
-            watchseries("http://thewatchseries.to/serie/"+i[0],i[1],i[2],i[3])
-            # raise ValueError("watchseries-Need Exactly 3 Arguments")
+if __name__ == '__main__':
+    print "\t+---------------------------+\n\t|  Watch Series Downloader  |\n\t|            By             |\n\t|      Spider  Studios      |\n\t+---------------------------+"
+    if "-new" in sys.argv:
+        main()
+    else:
+        threads=list()
+        for i in s_names:
+            if len(i)==3:
+                watchseries("http://thewatchseries.to/serie/"+i[0],i[1],i[2])
+            elif len(i)==1:
+                watchseries("http://thewatchseries.to/serie/"+i[0])
+            elif len(i)==4:
+                watchseries("http://thewatchseries.to/serie/"+i[0],i[1],i[2],i[3])
+            else:
+                raise ValueError(i[0]+" -- watchseries-Need Exactly 1 or 3 or 4 Arguments given "+ len(i))
