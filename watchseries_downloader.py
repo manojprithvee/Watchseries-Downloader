@@ -60,7 +60,7 @@ def wait_for_internet():
 
 def Run_process(exe,namel,season, episold,s_name):
     exe=exe.replace("?","")
-    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True) 
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True)
     final = ""
     abc=0
     while True:
@@ -114,14 +114,14 @@ def gorillavia(link, name, season, episold, s_name,try1):
                 except:
                     pass
                 namel = "C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\\Season-" + str(
-                season) + "\\" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
+                season) + "\\" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
             elif Ostype=="Linux":
                 try:
                     os.makedirs("/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(season))
                 except:
                     pass
                 namel = "/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(
-                season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + name + ".mp4"
+                season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
             if "-l" in sys.argv:
                 try:
                     print "speed"
@@ -149,7 +149,7 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     os._exit(0)
             else:
                 if Ostype=="Windows":
-                    out = Run_process('wget.exe  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                    out = Run_process('wget.exe  -c -O "' +  namel + '" ' + urls,namel,season, episold,s_name)
                 else:
                     out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
                 if out.find("100%")!=-1:
