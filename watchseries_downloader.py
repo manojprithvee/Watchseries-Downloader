@@ -122,6 +122,13 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     pass
                 namel = "/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(
                 season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
+            elif Ostype=="Darwin":
+                try:
+                    TODO os.makedirs("~/Downloads/watchseries/" + s_name + "/Season-" + str(season))
+                except:
+                    pass
+                namel="~/Downloads/watchseries/" + s_name + "/Season-" + str(
+                season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
             if "-l" in sys.argv:
                 try:
                     print "speed"
