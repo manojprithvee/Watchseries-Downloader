@@ -86,7 +86,7 @@ def Run_process(exe,namel,season, episold,s_name):
             abc=1
             global notification_complete
             print "S_" + str(season) + "E_" + str(episold)+"\n-------------------------------Completed----------------------------------"
-            notification_complete=notification_complete+s_name +'Season '+str(season)+" Episold "+str(episold)+"\n"
+            notification_complete=notification_complete+s_name +' Season '+str(season)+" Episold "+str(episold)+"\n"
         if abc==0 and final.find("416 Requested Range Not Satisfiable")!=-1:
             abc=1
             print "S_" + str(season) + "E_" + str(episold)+"\n---------- Its Already Downloaded ----------"
