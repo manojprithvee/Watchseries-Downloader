@@ -17,6 +17,195 @@ gorillavialist = list()
 notification_complete=""
 filread=open("test.json","r")
 s_names=json.loads(filread.read())
+
+class allmyvideos:
+    linklist = list()
+
+    def __init__(self, links):
+
+        temp = list()
+        for i in links:
+            if len(links)==5:
+                break
+            if i.find("allmyvideos") != -1:
+                temp.append(i);
+        links = temp
+        link720p = list()
+        link360p = list()
+        link480p = list()
+        for i in links:
+            id = i.split("/")[-1]
+            data = {
+                'op': 'download1',
+                'usr_login': '',
+                'id': id,
+                'fname': '',
+                'referer': 'http://thewatchseries.to/cale.html?r=aHR0cDovL2FsbG15dmlkZW9zLm5ldC9wdm01aTNmOGNwNXo=',
+                'method_free': '1',
+            }
+            a = requests.post(i, data, headers={
+                "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/\
+                537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36",
+                "Upgrade-Insecure-Requests": 1})
+            x = re.findall('(?<="sources" : )[.\s{"\[a-z:/0-9?,}\]]*(?=,)', a.text)[0]
+            x = json.loads(x)
+            for j in x:
+                if j["label"] == '360':
+                    link360p.append(j["file"])
+                if j["label"] == '480':
+                    link480p.append(j["file"])
+                if j["label"] == '720':
+                    link720p.append(j["file"])
+            self.linklist = link720p + link480p + link360p
+
+    def getlinks(self):
+        """
+
+        :rtype: list
+        """
+        return self.linklist
+
+
+class filehoot:
+    linklist = list()
+
+    def __init__(self, links):
+
+        temp = list()
+        for i in links:
+            if len(links)==5:
+                break
+            if i.find("filehoot") != -1:
+                temp.append(i);
+        links = temp
+        for i in links:
+            id = i.split("/")[-1].replace(".html", "")
+            data = {
+                'op': 'download1',
+                'usr_login': '',
+                'id': id,
+                'fname': '',
+                'referer': '',
+                'method_free': 'Continue to watch your Video',
+            }
+            a = requests.post(i, data, headers={
+                "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/\
+                537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36",
+                "Upgrade-Insecure-Requests": 1})
+            urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", a.text)
+            for i in urls:
+                if i.find(".mp4") != -1:
+                    self.linklist.append(i)
+                    break
+
+    def getlinks(self):
+        """
+
+        :rtype: list
+        """
+        return self.linklist
+
+
+class openload:
+    linklist = list()
+
+    def __init__(self, links):
+
+        temp = list()
+        for i in links:
+            if len(links)==5:
+                break
+            if i.find("openload") != -1:
+                temp.append(i);
+        links = temp
+        for i in links:
+            i = i.replace("https://openload.co/f/", "https://1fgm8ru.oloadcdn.net/dl/l/lAWx2pOBVdU/")
+            self.linklist.append(i)
+
+    def getlinks(self):
+        """
+
+        :rtype: list
+        """
+        return self.linklist[::-1]
+
+
+class streamin:
+    linklist = list()
+
+    def __init__(self, links):
+
+        temp = list()
+        for i in links:
+            if len(links)==5:
+                break
+            if i.find("streamin") != -1:
+                temp.append(i);
+        links = temp
+        for i in links:
+            s = requests.session()
+            a = s.get(i)
+            doc = lh.fromstring(a.text.encode("utf-8"))
+            data = {
+                'op': 'download1',
+                'usr_login': '',
+                'id': doc.xpath('//input[@name="id"]/@value')[0],
+                'fname': doc.xpath('//input[@name="fname"]/@value')[0],
+                'referer': doc.xpath('//input[@name="referer"]/@value')[0],
+                'hash': doc.xpath('//input[@name="hash"]/@value')[0],
+                'imhuman': doc.xpath('//input[@name="imhuman"]/@value')[0],
+                'method_free': 'Continue to watch your Video'
+            }
+            time.sleep(4)
+            a = s.post(i, data, headers={
+                "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit\
+                /537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36",
+                "Upgrade-Insecure-Requests": 1,
+                "Cookie": "__cfduid=dd3f1044204f9cdeb7745e401237f93201457071209; lang=1;file_id=4105293; aff=80; ref_url=http%3A%2F%2Fthewatchseries.to%2Fcale.html%3Fr%3DaHR0cDovL3N0cmVhbWluLnRvL2Fma2I2ZjJqMGwzNA%3D%3D; __utmt=1;__utma=30906109.221046949.1457071212.1457071212.1457071212.1;__utmb=30906109.1.10.1457071212; __utmc=30906109; __utmz=30906109.1457071212.1.1.utmcsr=thewatchseries.to|utmccn=(referral)|utmcmd=referral|utmcct=/cale.html; __test;adk2_catfish=1%7CFri,%2004%20Mar%202016%2006:01:13%20GMT;FastPopSessionRequestNumber=1"})
+            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', a.text)
+            for i in urls:
+                if i.find(".mp4") != -1:
+                    self.linklist.append(i);
+                    break
+
+    def getlinks(self):
+        """
+
+        :rtype: list
+        """
+        return self.linklist
+
+
+class gorillavid:
+    linklist = list()
+
+    def __init__(self, links):
+        temp = list()
+        if len(links)==5:
+            break
+        for i in links:
+            if i.find("http://gorillavid.in/") != -1 or i.find("daclips") != -1 or i.find("movpod") != -1:
+                temp.append(i);
+                if len(temp) == 5:
+                    break
+        links = temp
+        for i in links:
+            a = requests.get(i, headers={
+                "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y)\
+                 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36",
+                "Upgrade-Insecure-Requests": 1})
+            urls = re.findall("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", a.text)
+            for i in urls:
+                if i.find(".mp4") != -1:
+                    self.linklist.append(i)
+
+    def getlinks(self):
+        """
+
+        :rtype: list
+        """
+        return self.linklist
+
 def onexit():
     print "saving status.."
     if notification_complete!="":
@@ -59,7 +248,6 @@ def wait_for_internet():
             sys.stdout.flush()
 
 def Run_process(exe,namel,season, episold,s_name):
-    exe=exe.replace("?","")
     p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True)
     final = ""
     abc=0
@@ -72,8 +260,7 @@ def Run_process(exe,namel,season, episold,s_name):
         temp = out
         global data
         if len(temp) > 30:
-            pass
-            # print temp,
+            print temp,
         if len(temp) < 30:
             if temp.find("skipping") == -1:
                 a = out.strip().split(" ")
@@ -93,21 +280,24 @@ def Run_process(exe,namel,season, episold,s_name):
         if retcode is not None:
             return final
 
-def gorillavia(link, name, season, episold, s_name,try1):
+def wgethander(links, name, season, episold, s_name,try1):
     global s_names
     try:
-        if link.find("gorillavid.in") == -1:
-            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nThis has no gorillavid Links" + ENDC
-        elif(try1==4):
+        if(try1==4):
             print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nTryed 3 Time And Failed" + ENDC
             return
         else:
-            a = requests.get(link, headers={"User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; Moto G Build/LMY48Y) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36","Upgrade-Insecure-Requests": 1})
-            urls = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', a.text)
-            for i in urls:
-                if i.find(".mp4") != -1:
-                    urls = i
-                    break
+            urls = gorillavid(links).getlinks()
+            print urls
+            if len(urls) == 0:
+                urls = allmyvideos(links).getlinks()
+            if len(urls) == 0:
+                urls = openload(links).getlinks()
+            if len(urls) == 0:
+                urls = filehoot(links).getlinks()
+            if len(urls) == 0:
+                urls = streamin(links).getlinks()
+
             if Ostype=="Windows":
                 try:
                     os.makedirs("C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\Season-" + str(season))
@@ -134,9 +324,9 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     print "speed"
                     speed=int(sys.argv[sys.argv.index("-l")+1])
                     if Ostype=="Windows":
-                        out = Run_process('wget.exe  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                        out = Run_process('wget.exe  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
                     else:
-                        out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                        out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
                     if out.find("100%")!=-1:
                         flagnotin=1
                         for j in s_names:
@@ -156,15 +346,16 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     os._exit(0)
             else:
                 if Ostype=="Windows":
-                    out = Run_process('wget.exe  -c -O "' +  namel + '" ' + urls,namel,season, episold,s_name)
+                    print urls[0]
+                    out = Run_process('wget.exe -c  -O "' +  namel + '" ' + urls[0],namel,season, episold,s_name)
                 else:
-                    out = Run_process('wget  -c -O "' + namel + '" ' + urls,namel,season, episold,s_name)
+                    out = Run_process('wget  -c -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
                 if out.find("100%")!=-1:
                     flagnotin=1
                     for j in s_names:
                         if j[0]==s_name:
-                            j[1]=season
-                            j[2]=episold+1
+                            j[1]=int(season)
+                            j[2]=int(episold)+1
                             flagnotin=0
                     if flagnotin==1:
                         s_names=[[s_name,int(season),int(episold)]]+s_names
@@ -173,59 +364,64 @@ def gorillavia(link, name, season, episold, s_name,try1):
                     filwite.write(json.dumps(s_names))
                     filwite.close()
                 if out.find("failed:")!=-1:
-                    gorillavia(link, name, season, episold, s_name,try1+1)
+                    wgethander(links, name, season, episold, s_name,try1+1)
     except Exception, e:
         global client
         wait_for_internet()
         if try1==1 and str(e).find("HTTPConnectionPool")==-1:
             print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(traceback.print_exc()) + ENDC
             notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(traceback.print_exc()),1,1)
-        gorillavia(link,name,season,episold,s_name,try1+1)
+        wgethander(links,name,season,episold,s_name,try1+1)
 
-def leve1(link, i, j, s_name,try1):
-    print "\nS_"+str(i)+"E_"+str(j),
-    if(try1==4):
+def leve1(link, i, j, s_name, try1):
+    print "\nS_" + str(i) + "E_" + str(j),
+    if (try1 == 4):
         print FAIL + "tryed 3 time and failed" + ENDC
         return
     try:
-        a = requests.get(link,timeout=10)
+        a = requests.get(link, timeout=10)
     except Exception, e:
-        print FAIL + "S_"+str(i)+"E_"+str(j)+"\n "+str(traceback.print_exc()) + ENDC
+        print FAIL + "S_" + str(i) + "E_" + str(j) + "\n " + str(e) + ENDC
         wait_for_internet()
-        leve1(link,i,j,s_name,try1+1)
+        leve1(link, i, j, s_name, try1 + 1)
         return
     doc = lh.fromstring(a.text)
-    final = doc.xpath('//a[@class="buttonlink"]/@href')
-    # print link
+    temp = list()
+    final = re.findall('(?<=\/cale.html\?r=)\w+.*(?=" class)', a.text)
+    for x in final:
+        temp.append(base64.b64decode(x))
+    final = temp
+    # final = doc.xpath('//tr[2]/td[2]/a/@href')
     name = doc.xpath("//title/text()")[0]
     name = name.split(" - ")[1]
-    if final!=[]:
-        gorillavialist.append([base64.b64decode(final[1].replace("/cale.html?r=", "")[:56]), name, i, j, s_name])
+    if final != []:
+        gorillavialist.append([final, name, i, j, s_name])
     else:
-        print "no links found"
+        pass
 
-def leve1_epi(link,i,j,s_name,try1=1):
-    if(try1==4):
+def leve1_epi(link, i, j, s_name, try1=1):
+    if (try1 == 4):
         print FAIL + "tryed 3 time and failed" + ENDC
         return
     try:
-        a=requests.get(link)
+        a = requests.get(link)
     except Exception, e:
-        print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(traceback.print_exc())+ ENDC
+        print FAIL + "S_" + str(i) + "E_" + str(j) + "\n" + str(e) + ENDC
         wait_for_internet()
-        leve1_epi(link,i,j,s_name,try1+1)
+        leve1_epi(link, i, j, s_name, try1 + 1)
         return
-    html=a.text.encode('ascii', 'ignore').decode('ascii')
     doc = lh.fromstring(a.text)
-
-    final=doc.xpath('//a[@class="buttonlink"]/@href')
-    #print link
-    name=doc.xpath("//title/text()")[0]
-    name=name.split(" - ")[1]
-    gorillavia(base64.b64decode(final[1].replace("/cale.html?r=", "")[:56]), name, i, j, s_name,1)
+    temp = list()
+    final = re.findall('(?<=\/cale.html\?r=)\w+.*(?=" class)', a.text)
+    for x in final:
+        temp.append(base64.b64decode(x))
+    final = temp
+    # final = doc.xpath('//tr[2]/td[2]/a/@href')
+    name = doc.xpath("//title/text()")[0]
+    name = name.split(" - ")[1]
+    wgethander(final, name, i, j, s_name, 1)
 
 def rundownload(s_name):
-    print "enter rundownload"
     global gorillavialist
     data[s_name]["episold_list"] = list(gorillavialist)
     season = 1
@@ -237,21 +433,7 @@ def rundownload(s_name):
         for episold in range(200):
             for i in gorillavialist:
                 if i[2] == season and i[3] == episold:
-
-                    # threads.append(threading.Thread(target=gorillavia,args=(i[0], i[1], i[2], i[3], i[4],1)))
-                    gorillavia(i[0], i[1], i[2], i[3], i[4],1)
-    # index=1
-    # sublist=list()
-    # for a in threads:
-    #     if index%2==0:
-    #         for i in sublist:
-    #             i.join()
-    #         sublist=list()
-    #     a.start()
-    #     sublist.append(a)
-    #     index=index+1
-    # for i in sublist:
-    #     i.join()
+                    wgethander(i[0], i[1], i[2], i[3], i[4],1)
     gorillavialist=list()
 
 
@@ -282,12 +464,12 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
             for x in epview:
                 if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
                     if i >= start_season:
-                        if j >= start_episold-1:
-                            if i<=final_season:
-                                if j<=final_episold:
+                        if j >= start_episold:
+                            start_episold = 0
+                            if i <= final_season:
+                                if j <= final_episold:
                                     # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
                                     threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
-        start_episold=0
     index=1
     sublist=list()
     for a in threads:
