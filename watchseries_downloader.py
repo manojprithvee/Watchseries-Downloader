@@ -19,10 +19,8 @@ filread=open("test.json","r")
 s_names=json.loads(filread.read())
 
 class allmyvideos:
-    linklist = list()
-
     def __init__(self, links):
-
+        self.linklist=list()
         temp = list()
         for i in links:
             if len(links)==5:
@@ -67,10 +65,8 @@ class allmyvideos:
 
 
 class filehoot:
-    linklist = list()
-
     def __init__(self, links):
-
+        self.linklist=list()
         temp = list()
         for i in links:
             if len(links)==5:
@@ -107,10 +103,8 @@ class filehoot:
 
 
 class openload:
-    linklist = list()
-
     def __init__(self, links):
-
+        self.linklist=list()
         temp = list()
         for i in links:
             if len(links)==5:
@@ -131,10 +125,8 @@ class openload:
 
 
 class streamin:
-    linklist = list()
-
     def __init__(self, links):
-
+        self.linklist = list()
         temp = list()
         for i in links:
             if len(links)==5:
@@ -177,13 +169,12 @@ class streamin:
 
 
 class gorillavid:
-    linklist = list()
-
     def __init__(self, links):
+        self.linklist = list()
         temp = list()
-        if len(links)==5:
-            break
         for i in links:
+            if len(links)==5:
+                break
             if i.find("http://gorillavid.in/") != -1 or i.find("daclips") != -1 or i.find("movpod") != -1:
                 temp.append(i);
                 if len(temp) == 5:
@@ -288,7 +279,6 @@ def wgethander(links, name, season, episold, s_name,try1):
             return
         else:
             urls = gorillavid(links).getlinks()
-            print urls
             if len(urls) == 0:
                 urls = allmyvideos(links).getlinks()
             if len(urls) == 0:
@@ -464,12 +454,12 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
             for x in epview:
                 if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
                     if i >= start_season:
-                        if j >= start_episold:
-                            start_episold = 0
-                            if i <= final_season:
-                                if j <= final_episold:
+                        if j >= start_episold-1:
+                            if i<=final_season:
+                                if j<=final_episold:
                                     # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
                                     threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
+        start_episold=0
     index=1
     sublist=list()
     for a in threads:
