@@ -13,7 +13,6 @@ FAIL = '\033[91m'
 ENDC = '\033[0m'
 data={}
 flagnotin=1
-current_episold_number=1
 gorillavialist = list()
 notification_complete=""
 filread=open("data.json","r")
@@ -24,8 +23,6 @@ class allmyvideos:
         self.linklist=list()
         temp = list()
         for i in links:
-            if len(links)==5:
-                break
             if i.find("allmyvideos") != -1:
                 temp.append(i);
         links = temp
@@ -55,7 +52,7 @@ class allmyvideos:
                     link480p.append(j["file"])
                 if j["label"] == '720':
                     link720p.append(j["file"])
-            self.linklist = link720p + link480p + link360p
+            self.linklist = link360p + link480p + link720p
 
     def getlinks(self):
         """
@@ -70,8 +67,6 @@ class filehoot:
         self.linklist=list()
         temp = list()
         for i in links:
-            if len(links)==5:
-                break
             if i.find("filehoot") != -1:
                 temp.append(i);
         links = temp
@@ -108,8 +103,6 @@ class openload:
         self.linklist=list()
         temp = list()
         for i in links:
-            if len(links)==5:
-                break
             if i.find("openload") != -1:
                 temp.append(i);
         links = temp
@@ -130,8 +123,6 @@ class streamin:
         self.linklist = list()
         temp = list()
         for i in links:
-            if len(links)==5:
-                break
             if i.find("streamin") != -1:
                 temp.append(i);
         links = temp
@@ -171,14 +162,13 @@ class streamin:
 
 class gorillavid:
     def __init__(self, links):
+    	print ("\033[K\033[07m getting Links \033[0m \r"),
         self.linklist = list()
         temp = list()
         for i in links:
-            if len(links)==5:
-                break
             if i.find("http://gorillavid.in/") != -1 or i.find("daclips") != -1 or i.find("movpod") != -1:
                 temp.append(i);
-                if len(temp) == 5:
+                if len(temp) == 2:
                     break
         links = temp
         for i in links:
@@ -255,14 +245,17 @@ def Run_process(exe,namel,season, episold,s_name):
         temp = out
         global data
         if len(temp) > 30:
-            pass
+            print temp,
         if len(temp) < 30:
             if temp.find("skipping") == -1:
                 a = out.strip().split(" ")
                 if a != [""]:
                     a = [x for x in a if x != ""]
-                    print("\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
-                        2] + "B\s Time : " + a[3] +" episold: " + "S_" + str(season) + "E_" + str(episold) + "\033[0m \r"),
+                    try:
+	                    print("\033[K\033[07m" + "Downloaded: " + a[0] + "B Completed: " + a[1] + " Speed: " + a[
+	                        2] + "B\s Time : " + a[3] +" episold: " + "S_" + str(season) + "E_" + str(episold) + "\033[0m \r"),
+                    except:
+        				pass
         final = final + out
         if abc==0 and final.find("100%")!=-1:
             abc=1
@@ -278,75 +271,51 @@ def Run_process(exe,namel,season, episold,s_name):
 def wgethander(links, name, season, episold, s_name,try1):
     global s_names
     try:
-        if(try1==4):
-            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nTryed 3 Time And Failed" + ENDC
+        if(try1==11):
+            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\nTryed 10 Time And Failed" + ENDC
             return
-        else:
-            urls = gorillavid(links).getlinks()
-            if len(urls) == 0:
-                urls = allmyvideos(links).getlinks()
-            if len(urls) == 0:
-                urls = openload(links).getlinks()
-            if len(urls) == 0:
-                urls = filehoot(links).getlinks()
-            if len(urls) == 0:
-                urls = streamin(links).getlinks()
+        if try1>1:
+            time.sleep(5)
+        urls = gorillavid(links).getlinks()
+        if len(urls) == 0:
+            urls = allmyvideos(links).getlinks()
+        if len(urls) == 0:
+            urls = openload(links).getlinks()
+        if len(urls) == 0:
+            urls = filehoot(links).getlinks()
+        if len(urls) == 0:
+            urls = streamin(links).getlinks()
 
-            if Ostype=="Windows":
-                try:
-                    os.makedirs("C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\Season-" + str(season))
-                except:
-                    pass
-                namel = "C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\\Season-" + str(
-                season) + "\\" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
-            elif Ostype=="Linux":
-                try:
-                    os.makedirs("/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(season))
-                except:
-                    pass
-                namel = "/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(
-                season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
-            elif Ostype=="Darwin":
-                try:
-                    os.makedirs("~/Downloads/watchseries/" + s_name + "/Season-" + str(season))
-                except:
-                    pass
-                namel="~/Downloads/watchseries/" + s_name + "/Season-" + str(
-                season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
-            if "-l" in sys.argv:
-                try:
-                    
-                    speed=int(sys.argv[sys.argv.index("-l")+1])
-                    print "speed is "+str(speed)
-                    if Ostype=="Windows":
-                        out = Run_process('wget.exe  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
-                    else:
-                        out = Run_process('wget  -c --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
-                    if out.find("100%")!=-1:
-                        flagnotin=1
-                        for j in s_names:	
-                            if j[0]==s_name:
-                            	if len(j)==1:
-                            		j=j+[season,episold+1]
-                            	else:
-                                        j[1]=season
-                                        j[2]=episold+1
-                                        flagnotin=0
-                        if flagnotin==1:
-                            s_names=[[s_name,int(season),int(episold)]]+s_names
-
-                        filwite=open("data.json","w")
-                        filwite.write(json.dumps(s_names))
-                        filwite.close()
-                except Exception, e:
-                    print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(traceback.print_exc()) + ENDC
-                    print "enter a number for speed"
-                    os._exit(0)
-            else:
+        if Ostype=="Windows":
+            try:
+                os.makedirs("C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\Season-" + str(season))
+            except:
+                pass
+            namel = "C:\Users\\"+getpass.getuser()+"\Downloads\watchseries\\" + s_name + "\\Season-" + str(
+            season) + "\\" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
+        elif Ostype=="Linux":
+            try:
+                os.makedirs("/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(season))
+            except:
+                pass
+            namel = "/home/"+getpass.getuser()+"/Downloads/watchseries/" + s_name + "/Season-" + str(
+            season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
+        elif Ostype=="Darwin":
+            try:
+                os.makedirs("~/Downloads/watchseries/" + s_name + "/Season-" + str(season))
+            except:
+                pass
+            namel="~/Downloads/watchseries/" + s_name + "/Season-" + str(
+            season) + "/" + s_name + "_S" + str(season) + "E" + str(episold) + "-" + re.sub('[^-a-zA-Z0-9_.() ]+', '-', name) + ".mp4"
+        if "-l" in sys.argv:
+            try:
+                
+                speed=int(sys.argv[sys.argv.index("-l")+1])
+                print "speed is "+str(speed)
                 if Ostype=="Windows":
-                    out = Run_process('wget.exe -c  -O "' +  namel + '" ' + urls[0],namel,season, episold,s_name)
+                    out = Run_process('wget.exe  -c --tries=3 --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
                 else:
-                    out = Run_process('wget  -c -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
+                    out = Run_process('wget  -c --tries=3 --limit-rate='+str(speed)+'k -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
                 if out.find("100%")!=-1:
                     flagnotin=1
                     for j in s_names:	
@@ -359,28 +328,56 @@ def wgethander(links, name, season, episold, s_name,try1):
                                     flagnotin=0
                     if flagnotin==1:
                         s_names=[[s_name,int(season),int(episold)]]+s_names
+
                     filwite=open("data.json","w")
                     filwite.write(json.dumps(s_names))
                     filwite.close()
-                if out.find("failed:")!=-1:
-                    wgethander(links, name, season, episold, s_name,try1+1)
+                if out.find("failed:")!=-1 or out.find("ERROR 404")!=-1:
+					links.pop(0)
+					wgethander(links, name, season, episold, s_name,try1+1)
+            except Exception, e:
+                print FAIL + "S_" + str(season) + "E_" + str(episold)+"\n" +str(traceback.print_exc()) + ENDC
+                print "enter a number for speed"
+                os._exit(0)
+        else:
+            if Ostype=="Windows":
+                out = Run_process('wget.exe -c  --tries=3 -O "' +  namel + '" ' + urls[0],namel,season, episold,s_name)
+            else:
+                out = Run_process('wget  -c  --tries=3 -O "' + namel + '" ' + urls[0],namel,season, episold,s_name)
+            if out.find("100%")!=-1:
+                flagnotin=1
+                for j in s_names:	
+                    if j[0]==s_name:
+                    	if len(j)==1:
+                    		j=j+[season,episold+1]
+                    	else:
+                                j[1]=season
+                                j[2]=episold+1
+                                flagnotin=0
+                if flagnotin==1:
+                    s_names=[[s_name,int(season),int(episold)]]+s_names
+                filwite=open("data.json","w")
+                filwite.write(json.dumps(s_names))
+                filwite.close()
+            if out.find("failed:")!=-1 or out.find("ERROR 404")!=-1:
+				links.pop(0)
+				wgethander(links, name, season, episold, s_name,try1+1)
     except Exception, e:
-        global client
-        wait_for_internet()
-        if try1==1 and str(e).find("HTTPConnectionPool")==-1:
-            print FAIL + "S_" + str(season) + "E_" + str(episold) +"\n"+str(traceback.print_exc()) + ENDC
-            notify("WS Downloader S_" + str(season) + "E_" + str(episold),str(traceback.print_exc()),1,1)
-        wgethander(links,name,season,episold,s_name,try1+1)
+        links.pop(0)
+        wgethander(links, name, season, episold, s_name,try1+1)
 
-def leve1(link, i, j, s_name, total_number_of_episode, try1):
-    global current_episold_number
-    print ("\033[K\033[07m" +"Data Mining progress : "+str(current_episold_number)+"/"+total_number_of_episode+ "\033[0m \r"),
-    current_episold_number+=1
+def leve1(link, i, j, s_name, try1):
+    if (try1 == 11):
+        print FAIL + "tryed 10 time and failed" + ENDC
+        return
+    if try1>1:
+        time.sleep(5)
+    print ("\033[K\033[07m" +"Data Mining progress.. S_"+str(i)+"E_"+str(j)+ "\033[0m \r"),
     try:
         a = requests.get(link, timeout=10)
     except Exception, e:
         wait_for_internet()
-        leve1(link, i, j, s_name, total_number_of_episode, try1 + 1)
+        leve1(link, i, j, s_name, try1 + 1)
         return
     doc = lh.fromstring(a.text)
     temp = list()
@@ -397,9 +394,11 @@ def leve1(link, i, j, s_name, total_number_of_episode, try1):
         pass
 
 def leve1_epi(link, i, j, s_name, try1=1):
-    if (try1 == 4):
-        print FAIL + "tryed 3 time and failed" + ENDC
+    if (try1 == 11):
+        print FAIL + "tryed 10 time and failed" + ENDC
         return
+    if try1>1:
+        time.sleep(5)
     try:
         a = requests.get(link)
     except Exception, e:
@@ -411,6 +410,8 @@ def leve1_epi(link, i, j, s_name, try1=1):
     temp = list()
     final = re.findall('(?<=\/cale.html\?r=)\w+.*(?=" class)', a.text)
     for x in final:
+        if len(temp)==1:
+            break
         temp.append(base64.b64decode(x))
     final = temp
     # final = doc.xpath('//tr[2]/td[2]/a/@href')
@@ -444,39 +445,50 @@ def watchseries(link,start_season=0,start_episold=0,final_season=50000,final_epi
     gorillavialist=list()
 
 def datamining(link,s_name,start_season,start_episold,final_season,final_episold,try1=1):
-    if(try1==4):
-        print FAIL + "tryed 3 time and failed" + ENDC
+    if (try1 == 11):
+        print FAIL + "tryed 10 time and failed" + ENDC
         return
+    if try1>1:
+        time.sleep(5)
     try:
-        a = requests.get(link)
+        a = requests.get("https://query.yahooapis.com/v1/public/yql?q=select * from html where url='"+link+"' and xpath='//meta[@itemprop=\"url\"]/@content'&format=json")
     except Exception, e:
         print FAIL + str(traceback.print_exc()) + ENDC
         wait_for_internet()
         datamining(link,s_name,start_season,start_episold,final_season,final_episold,try1+1)
         return
-    doc = lh.fromstring(a.text)
-    epview = doc.xpath('//meta[@itemprop="url"]/@content')
+    rawjson=json.loads(a.text)
+    epview=list()
+    for i in rawjson['query']['results']['meta']:
+        epview.append(i['content'])
     threads=list()
     breaker=False
-    total_number_of_episode=str(len(epview))
-    print "Total Number of Episode : "+total_number_of_episode
     for i in range(50):
+        if breaker:
+            break
         for j in range(200):
+            if breaker:
+                break
             for x in epview:
                 if x.find("s" + str(i) + "_e" + str(j) + ".html") != -1:
                     if i >= start_season:
                         if j >= start_episold:
                             if i==final_season:
-                                if j>final_episold:
-                                    breaker=True
-                                    break
-                            start_episold=0
-                            # leve1("http://thewatchseries.to" + x, i, j, s_name,1)
-                            threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,total_number_of_episode,1)))
-            if breaker:
-                break
-        if breaker:
-            break
+	                                if j>final_episold:
+										print "manoj"
+										breaker=True
+										break
+
+                            if breaker==False:
+								if i>final_season:
+									breaker=True
+									break
+								start_episold=0
+								# print i,j
+								# leve1("http://thewatchseries.to" + x, i, j, s_name,1)
+								threads.append(threading.Thread(target=leve1,args=("http://thewatchseries.to" + x, i, j, s_name,1)))
+            
+        
                 
     index=1
     sublist=list()
