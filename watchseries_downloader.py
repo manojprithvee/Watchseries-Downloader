@@ -162,14 +162,14 @@ class streamin:
 
 class gorillavid:
     def __init__(self, links):
-    	print ("\033[K\033[07m getting Links \033[0m \r"),
+    	print ("\033[K\033[07mgetting Links \033[0m \r"),
         self.linklist = list()
         temp = list()
         for i in links:
             if i.find("http://gorillavid.in/") != -1 or i.find("daclips") != -1 or i.find("movpod") != -1:
                 temp.append(i);
-                if len(temp) == 2:
-                    break
+                if len(temp)>5:
+                	break
         links = temp
         for i in links:
             a = requests.get(i, headers={
@@ -332,7 +332,7 @@ def wgethander(links, name, season, episold, s_name,try1):
                     filwite=open("data.json","w")
                     filwite.write(json.dumps(s_names))
                     filwite.close()
-                if out.find("failed:")!=-1 or out.find("ERROR 404")!=-1:
+                if out.find("failed:")!=-1 or out.find("ERROR 404")!=-1 or out.find("No data received.")!=-1:
 					links.pop(0)
 					wgethander(links, name, season, episold, s_name,try1+1)
             except Exception, e:
@@ -359,7 +359,8 @@ def wgethander(links, name, season, episold, s_name,try1):
                 filwite=open("data.json","w")
                 filwite.write(json.dumps(s_names))
                 filwite.close()
-            if out.find("failed:")!=-1 or out.find("ERROR 404")!=-1:
+            if out.find("failed:")!=-1 or out.find("ERROR 404")!=-1 or out.find("No data received.")!=-1:
+				print links
 				links.pop(0)
 				wgethander(links, name, season, episold, s_name,try1+1)
     except Exception, e:
@@ -410,8 +411,6 @@ def leve1_epi(link, i, j, s_name, try1=1):
     temp = list()
     final = re.findall('(?<=\/cale.html\?r=)\w+.*(?=" class)', a.text)
     for x in final:
-        if len(temp)==1:
-            break
         temp.append(base64.b64decode(x))
     final = temp
     # final = doc.xpath('//tr[2]/td[2]/a/@href')
@@ -459,6 +458,8 @@ def datamining(link,s_name,start_season,start_episold,final_season,final_episold
         return
     rawjson=json.loads(a.text)
     epview=list()
+    if rawjson['query']['results']==None:
+    	print "Server down"
     for i in rawjson['query']['results']['meta']:
         epview.append(i['content'])
     threads=list()
@@ -518,10 +519,10 @@ def main():
                 leve1_epi(a, b, c, d)
             elif a.find("/serie/") != -1 and len(a.split("/")) == 5:
 
-                if raw_input("do u want to start form the top (y or n)").lower()=="y":
-                    watchseries(a)
-                else:
+                if raw_input("Do you want to start from the top (y or n)").lower()!="y":
                     watchseries(a,int(raw_input("enter the sesaon number")),int(raw_input("enter the Episold number")))
+                else:
+                    watchseries(a)
             else:
                 print "enter a url of a series or a episode"
         else:
