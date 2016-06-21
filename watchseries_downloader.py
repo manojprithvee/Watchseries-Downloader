@@ -373,7 +373,7 @@ def leve1(link, i, j, s_name, try1):
         return
     if try1>1:
         time.sleep(5)
-    print ("\033[K\033[07m" +"Data Mining progress.. S_"+str(i)+"E_"+str(j)+ "\033[0m \r"),
+    print "S_"+str(i)+"E_"+str(j)
     try:
         a = requests.get(link, timeout=10)
     except Exception, e:
